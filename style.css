@@ -1,27 +1,23 @@
-/* ── GLOBAL RESET ────────────────────────────────────────────────────────── */
-/* Remove the default spacing and size quirks that browsers add automatically. */
-
+/* ── GLOBAL SCREEN RESET ────────────────────────────────────────────────── */
 * {
   margin:     0;
   padding:    0;
-  box-sizing: border-box;   /* makes width/height include border and padding */
+  box-sizing: border-box;   /* Keeps sizing layout calculations balanced */
 }
 
 body {
   font-family: "Courier New", monospace;
   color:       white;
-  overflow:    hidden;      /* stop scroll bars from appearing */
-  height:      100vh;       /* fill the full visible screen height */
+  overflow:    hidden;      /* Disables scrolling side scrolls completely */
+  height:      100vh;       /* Fixes layout full height of target windows */
 }
 
-
-/* ── MAIN MENU ───────────────────────────────────────────────────────────── */
-
+/* ── MAIN MENU STYLING CONTAINER ────────────────────────────────────────── */
 #mainMenuBody {
-  background: url("Images/Home Screen.png") center / cover no-repeat;
+  background: url("Home Screen.jpg") center / cover no-repeat;
   display:    flex;
-  justify-content: center;
-  align-items:     center;
+  justify-content: center;  /* Centers horizontally */
+  align-items:     center;  /* Centers vertically */
 }
 
 #menuContainer {
@@ -31,7 +27,7 @@ body {
 #gameTitle {
   font-size:   72px;
   color:       #ff3333;
-  text-shadow: 0 0 24px red, 0 0 6px #ff000088;
+  text-shadow: 0 0 24px red;
   margin-bottom: 8px;
 }
 
@@ -42,43 +38,13 @@ body {
   margin-bottom: 32px;
 }
 
-
-/* ── GAME PAGE ───────────────────────────────────────────────────────────── */
-
-#gameBody {
-  background: url("Images/Cave.png") center / 115% no-repeat;
-  position:   relative;
-}
-
-/* Override backgrounds for special room states */
-#gameBody.blackout   { background: black; }
-#gameBody.bloodFlash { background: #bb0000; }
-#gameBody.darkScene  {
-  background:
-    linear-gradient(180deg, rgba(3, 5, 8, 0.85), rgba(7, 9, 12, 0.96)),
-    url("Images/Cave.png") center / cover no-repeat;
-}
-#gameBody.rushScene {
-  background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.98)),
-    url("Images/Cave.png") center / cover no-repeat;
-  animation: rushZoom 1.6s ease-in forwards;
-}
-#gameBody.doorScene {
-  background:
-    linear-gradient(180deg, rgba(3, 4, 6, 0.55), rgba(0, 0, 0, 0.92)),
-    url("Images/Cave.png") center / cover no-repeat;
-}
-
-
-/* ── BUTTONS (shared style) ──────────────────────────────────────────────── */
-
+/* ── INTERACTION BUTTON ELEMENTS ────────────────────────────────────────── */
 button {
   background:    #111;
   border:        1px solid #ff3333;
   color:         white;
   padding:       10px 22px;
-  cursor:        pointer;
+  cursor:        pointer;     /* Changes cursor to a pointing finger hand */
   font-family:   "Courier New", monospace;
   font-size:     14px;
   letter-spacing: 1px;
@@ -86,19 +52,37 @@ button {
 }
 
 button:hover {
-  background: #2a0000;
+  background: #2a0000;      /* Dark red tone highlight overlay changes */
 }
 
 #menuButton {
   position: absolute;
   top:      14px;
   right:    14px;
-  z-index:  100;
+  z-index:  100;            /* Keeps element placed higher on visual stack */
 }
 
+/* ── IN-GAME BACKGROUND OVERRIDES ───────────────────────────────────────── */
+#gameBody {
+  background: url("Cave.jpg") center / 115% no-repeat;
+  position:   relative;
+}
 
-/* ── GAME WORLD ──────────────────────────────────────────────────────────── */
+#gameBody.blackout   { background: black; }
+#gameBody.bloodFlash { background: #bb0000; }
 
+#gameBody.darkScene  {
+  background: linear-gradient(180deg, rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url("Cave.jpg") center / cover no-repeat;
+}
+#gameBody.rushScene {
+  background: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url("Cave.jpg") center / cover no-repeat;
+  animation: rushZoom 1.6s ease-in forwards;
+}
+#gameBody.doorScene {
+  background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.9)), url("Cave.jpg") center / cover no-repeat;
+}
+
+/* ── LAYERING GAME WORLD VIEWPORT ───────────────────────────────────────── */
 #gameWorld {
   position: absolute;
   width:    100%;
@@ -106,68 +90,59 @@ button:hover {
   z-index:  2;
 }
 
-/* hidden / visible are toggled by game.js on every image */
-.hidden  { opacity: 0 !important; pointer-events: none; }
-.visible { opacity: 1 !important; pointer-events: auto; }
-
-
-/* ── ROBERT ──────────────────────────────────────────────────────────────── */
-
+/* ── POSITIONING CHARACTERS AND ITEMS ───────────────────────────────────── */
 #robertImage {
   position:   absolute;
   width:       260px;
-  left:        20%;
-  top:         50%;
-  transform:   translate(-50%, -50%);
-  transition:  left 0.35s ease, top 0.35s ease, opacity 0.3s ease, width 0.35s ease;
   z-index:     3;
-  filter:      drop-shadow(0 0 18px rgba(0, 0, 0, 0.35));
 }
 
-#robertImage.robert-left   { left: 20%; top: 55%; }
-#robertImage.robert-center { left: 50%; top: 50%; }
-#robertImage.robert-right  { left: 78%; top: 55%; }
-#robertImage.robert-closeup {
-  width: 320px;
+/* Positioning adjustments controlled cleanly using class states via script */
+.robert-left   { left: 20%; top: 55%; transform: translate(-50%, -50%); }
+.robert-center { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.robert-right  { left: 78%; top: 55%; transform: translate(-50%, -50%); }
+.robert-closeup {
+  width: 450px !important;
   left: 50%;
-  top: 38%;
-  animation: robertPulse 1.8s ease-in-out infinite;
+  top: 40%;
+  transform: translate(-50%, -50%);
 }
-
-
-/* ── LIGHT SWITCH ────────────────────────────────────────────────────────── */
 
 #lightSwitchImage {
   position:   absolute;
-  width:      110px;
-  left:       32%;
-  top:        36%;
-  animation:  switchFlick 1.4s ease-in-out infinite;
-  z-index:    3;
-  transform-origin: center;
+  width:      80px;
+  left:       48%;
+  top:        35%;
+  z-index:    5;
+  cursor:     pointer;
 }
-
-
-/* ── KEYPAD ──────────────────────────────────────────────────────────────── */
 
 #keypadImage {
   position:  absolute;
   width:     220px;
   left:      50%;
-  top:       50%;
+  top:       45%;
   transform: translate(-50%, -50%);
   z-index:   3;
 }
 
+#heartImage {
+  position:  absolute;
+  width:     80px;
+  left:      50%;
+  top:       25%;
+  transform: translate(-50%, -50%);
+  z-index:   6;
+  cursor:    pointer;
+}
 
-/* ── HANDS ───────────────────────────────────────────────────────────────── */
-
+/* ── PLAYER HANDS VIEWPORT POSITION ────────────────────────────────────── */
 #leftHandImage {
   position: absolute;
   left:     0;
   bottom:   110px;
   width:    210px;
-  z-index:  4;    /* hands appear in front of Robert */
+  z-index:  10;
 }
 
 #rightHandImage {
@@ -175,16 +150,13 @@ button:hover {
   right:    0;
   bottom:   110px;
   width:    210px;
-  z-index:  4;
+  z-index:  10;
 }
-
-
-/* ── FLAMING ARROW ───────────────────────────────────────────────────────── */
 
 #flamingArrowImage {
   position: absolute;
   width:    200px;
-  left:     -220px;   /* starts off-screen to the left */
+  left:     -220px;
   top:      46%;
   z-index:  3;
 }
@@ -193,47 +165,31 @@ button:hover {
   animation: arrowFly 0.55s ease-in forwards;
 }
 
-
-/* ── SKULL & DOOR (pixel-art game elements) ──────────────────────────────── */
-
-#skullImage {
+#skullImage, #doorImage {
   position:  absolute;
-  width:     120px;
+  width:     130px;
   left:      50%;
-  top:       14%;
+  top:       25%;
   transform: translateX(-50%);
   z-index:   5;
-  image-rendering: pixelated;   /* keeps pixel art crisp instead of blurry */
 }
 
-#doorImage {
-  position:  absolute;
-  width:     144px;
-  left:      50%;
-  top:       30%;
-  transform: translateX(-50%);
-  z-index:   5;
-  image-rendering: pixelated;
-}
-
-
-/* ── BOTTOM UI PANEL ─────────────────────────────────────────────────────── */
-
+/* ── LOWER DIALOGUE BOX PANEL PANEL ────────────────────────────────────── */
 #uiPanel {
   position:   absolute;
   bottom:     22px;
   left:       50%;
   transform:  translateX(-50%);
   width:      70%;
-  background: rgba(0, 0, 0, 0.88);
+  background: rgba(0, 0, 0, 0.9);
   border:     2px solid #ff3333;
   padding:    18px 22px;
-  z-index:    10;   /* always on top */
+  z-index:    90; 
 }
 
 #dialogueText {
   font-size:   16px;
-  line-height: 1.55;
+  line-height: 1.5;
   min-height:  40px;
   margin-bottom: 14px;
 }
@@ -241,108 +197,28 @@ button:hover {
 #choiceButtons {
   display: flex;
   gap:     12px;
-  flex-wrap: wrap;   /* buttons wrap to a new line if there are many */
 }
 
 #typingArea {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
+  margin-top: 10px;
 }
 
 #typingInput {
-  flex: 1;
-  min-width: 180px;
-  background: #050505;
+  background: #000;
   border: 1px solid #ff3333;
   color: white;
-  padding: 8px 10px;
+  padding: 8px;
   font-family: "Courier New", monospace;
+  width: 200px;
 }
 
-#typingButton {
-  background: #1a1a1a;
-  border: 1px solid #ff3333;
-  color: white;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-family: "Courier New", monospace;
-}
-
-/* ── KEY BOXES (QTE) ─────────────────────────────────────────────────────── */
-
-#keyRow {
-  display:       flex;
-  gap:           10px;
-  flex-wrap:     wrap;
-  margin-bottom: 14px;
-}
-
-.keyBox {
-  width:       48px;
-  height:      48px;
-  font-size:   22px;
-  font-weight: bold;
-  border:      2px solid #ff3333;
-  display:     flex;
-  align-items:     center;
-  justify-content: center;
-  background:  #111;
-  transition:  background 0.15s, border-color 0.15s;
-}
-
-.keyBox.correct {
-  background:   #1a6e2e;
-  border-color: #28a745;
-  color:        white;
-}
-
-
-/* ── TIMER BAR ───────────────────────────────────────────────────────────── */
-
-#timerBar {
-  height:       7px;
-  background:   #2a2a2a;
-  margin-top:   12px;
-  border:       1px solid #444;
-}
-
-#timerFill {
-  height:     100%;
-  width:      100%;
-  background: #ff3333;
-  transition: width 0.05s linear;
-}
-
-
-/* ── ANIMATIONS ──────────────────────────────────────────────────────────── */
-
-/* Robert shaking rapidly during the game-over close-up */
-@keyframes jitter {
-  0%,  100% { transform: translate(-50%, -50%) translateX(0);    }
-  25%        { transform: translate(-50%, -50%) translateX(-3px); }
-  75%        { transform: translate(-50%, -50%) translateX(3px);  }
-}
-
-/* Light switch flicking up and down */
-@keyframes switchFlick {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  30%      { transform: translateY(-2px) rotate(-2deg); }
-  70%      { transform: translateY(2px) rotate(2deg); }
-}
-
-@keyframes robertPulse {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50%      { transform: translate(-50%, -50%) scale(1.02); }
-}
-
+/* ── BASIC MOVEMENTS KEYFRAMES STYLING ──────────────────────────────────── */
 @keyframes rushZoom {
-  from { background-size: 110%; filter: brightness(1); }
-  to   { background-size: 180%; filter: brightness(0.04); }
+  from { background-size: 110%; }
+  to   { background-size: 170%; }
 }
 
-/* Arrow flying across the screen left to right */
 @keyframes arrowFly {
-  from { left: -220px;  }
-  to   { left: 110vw;   }
+  from { left: -220px; }
+  to   { left: 110vw;  }
 }

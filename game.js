@@ -1,453 +1,272 @@
+// This event waits until the entire HTML page loads before executing code
 document.addEventListener("DOMContentLoaded", function () {
 
-  // ── PAGE ELEMENTS ──────────────────────────────────────────────────────
-  // We grab every HTML element the game needs to change.
+    // ── 1. ELEMENT SELECTION ─────────────────────────────────────────────
+    // Grabbing elements from HTML using their unique ID tags so JS can change them.
+    const robertImg = document.getElementById("robertImage");
+    const switchImg = document.getElementById("lightSwitchImage");
+    const keypadImg = document.getElementById("keypadImage");
+    const arrowImg  = document.getElementById("flamingArrowImage");
+    const skullImg  = document.getElementById("skullImage");
+    const doorImg   = document.getElementById("doorImage");
+    const heartImg  = document.getElementById("heartImage");
+    const leftHand  = document.getElementById("leftHandImage");
+    const rightHand = document.getElementById("rightHandImage");
 
-  const img = {
-    robert: document.getElementById("robertImage"),
-    switch: document.getElementById("lightSwitchImage"),
-    keypad: document.getElementById("keypadImage"),
-    arrow:  document.getElementById("flamingArrowImage"),
-    skull:  document.getElementById("skullImage"),
-    door:   document.getElementById("doorImage"),
-    lHand:  document.getElementById("leftHandImage"),
-    rHand:  document.getElementById("rightHandImage"),
-  };
+    const dialogueText = document.getElementById("dialogueText");
+    const choiceButtons = document.getElementById("choiceButtons");
+    const typingArea   = document.getElementById("typingArea");
+    const typingInput  = document.getElementById("typingInput");
+    const typingButton = document.getElementById("typingButton");
+    const gameBody     = document.getElementById("gameBody");
+    const menuButton   = document.getElementById("menuButton");
 
-  const ui = {
-    text:    document.getElementById("dialogueText"),
-    buttons: document.getElementById("choiceButtons"),
-    keys:    document.getElementById("keyRow"),
-    timer:   document.getElementById("timerBar"),
-    fill:    document.getElementById("timerFill"),
-    typingArea: document.getElementById("typingArea"),
-    typingInput: document.getElementById("typingInput"),
-    typingButton: document.getElementById("typingButton"),
-  };
+    // ── 2. GAME VARIABLES ────────────────────────────────────────────────
+    let currentRoom = 1; 
+    let clickCounter = 0; // Tracks clicking actions for interaction events
 
-  const audio = {
-    music:  document.getElementById("bgMusic"),
-    scream: document.getElementById("scareSound"),
-  };
-
-  // ── GAME STATE ──────────────────────────────────────────────────────────
-  // These variables track what's happening at this exact moment.
-
-  let currentRoom  = null;  // the room object currently on screen
-  let qteIndex     = 0;     // which key in the sequence the player is on
-  let qteActive    = false; // true while the player must press a key sequence
-  let timerTimeout = null;  // the countdown until game-over
-  let timerTick    = null;  // the visual timer bar updater
-
-  // ── ROOMS ───────────────────────────────────────────────────────────────
-  // Think of ROOMS as the story cards in a deck.
-  // Each room tells the game what to show and where to go next.
-  //
-  //  id           — unique number for this room
-  //  text         — the sentence shown in the bottom panel
-  //  options      — list of clickable buttons; each has text and a goTo id
-  //  requiredKeys — if present, a QTE (quick-time event) instead of buttons
-  //  qteSuccessGoTo — room to go to when the QTE is completed
-  //  timeLimit    — milliseconds before the game forces timeoutGoTo
-  //  timeoutGoTo  — room to go to when time runs out
-  //  isBlackout   — makes the background black
-  //  bloodFlash   — makes the background red (used in game over)
-  //  showSwitch   — shows the light-switch image
-  //  showKeypad   — shows the keypad image
-  //  showRobert   — shows Teacher Robert
-  //  robertCloseup— makes Robert fill the screen (horror effect)
-  //  robertPosition — "left", "center", "right", or "abyss"
-  //  shootArrow   — plays the arrow-fly animation
-  //  showSkull    — shows the pixel-art skull (game over rooms)
-  //  showDoor     — shows the pixel-art door (victory rooms)
-  //  hideHands    — hides the player's first-person hands
-  //  playScream   — plays the scare sound
-
-  const ROOMS = [
-
-    {
-      id: 1,
-      text: "You stepped inside the stone cave...",
-      options: [
-        { text: "Investigate the dark tunnel.", goTo: 2 },
-        { text: "Hide underneath a big heavy desk.", goTo: 10 }
-      ]
-    },
-
-    {
-      id: 2,
-      isBlackout: true,
-      showSwitch: true,
-      text: "A light switch is blinking. Type LIGHT to flip it.",
-      typingPrompt: "LIGHT",
-      typingSuccessGoTo: 3
-    },
-
-    {
-      id: 3,
-      isBlackout: true,
-      text: "THE LIGHTS WENT OUT! RUN BEFORE HE GRABS YOU!",
-      timeLimit: 2500,
-      timeoutGoTo: 99,
-      options: [
-        { text: "DUCK INTO THE CORNER OF THE CAVE", goTo: 4 }
-      ]
-    },
-
-    {
-      id: 4,
-      showRobert: true,
-      robertPosition: "right",
-      text: "Teacher Robert CHARGES TOWARDS YOU! Press the key combo to break free!",
-      timeLimit: 4000,
-      timeoutGoTo: 99,
-      requiredKeys: ["W", "S", "A", "D", "F", "G", "P", "A"],
-      qteSuccessGoTo: 5
-    },
-
-    {
-      id: 5,
-      showRobert: true,
-      robertPosition: "center",
-      text: "You kick his legs and break free! He stumbles backwards.",
-      options: [
-        { text: "Draw your bow and shoot.", goTo: 6 }
-      ]
-    },
-
-    {
-      id: 6,
-      showRobert: true,
-      robertPosition: "center",
-      text: "HE SEES YOU. Release the flaming arrow.",
-      timeLimit: 3000,
-      timeoutGoTo: 99,
-      requiredKeys: ["Q", "R", "E", "X", "C", "V", "Q"],
-      qteSuccessGoTo: 7
-    },
-
-    {
-      id: 7,
-      showRobert: true,
-      robertPosition: "left",
-      shootArrow: true,
-      text: "DIRECT HIT. He staggers back into the abyss.",
-      options: [
-        { text: "Sprint for the exit.", goTo: 8 }
-      ]
-    },
-
-    {
-      id: 8,
-      showRobert: true,
-      robertPosition: "center",
-      text: "Robert blocks the path, FURIOUS.",
-      options: [
-        { text: "Punch him.", goTo: 9 },
-        { text: "Reason with him.", goTo: 11 }
-      ]
-    },
-
-    {
-      id: 9,
-      showRobert: true,
-      robertPosition: "right",
-      text: "You punch him square in the jaw and bolt.",
-      options: [
-        { text: "Keep running.", goTo: 12 }
-      ]
-    },
-
-    {
-      id: 10,
-      showRobert: true,
-      robertPosition: "center",
-      text: "You crawl under the desk. His footsteps stop. He is inches away.",
-      options: [
-        { text: "Hold your breath.", goTo: 99 }
-      ]
-    },
-
-    {
-      id: 11,
-      isBlackout: true,
-      text: "He listens. Then he smashes you into the wall. Everything goes dark.",
-      options: [
-        { text: "Main Menu", goTo: -1 }
-      ]
-    },
-
-    {
-      id: 12,
-      escapeRun: true,
-      isBlackout: true,
-      text: "The cage snaps open. You bolt into the dark and the world zooms in.",
-      options: [
-        { text: "Keep running.", goTo: 13 }
-      ]
-    },
-
-    {
-      id: 13,
-      showKeypad: true,
-      escapeRun: true,
-      text: "A keypad flashes in the dark. Type 1975 to unlock the door.",
-      typingPrompt: "1975",
-      typingSuccessGoTo: 101
-    },
-
-    {
-      id: 99,
-      showRobert: true,
-      robertCloseup: true,
-      bloodFlash: true,
-      hideHands: true,
-      playScream: true,
-      showSkull: true,
-      text: "GAME OVER",
-      options: [
-        { text: "Main Menu", goTo: -1 }
-      ]
-    },
-
-    {
-      id: 100,
-      showDoor: true,
-      text: "You escaped into the sunlight. You survived.",
-      options: [
-        { text: "Main Menu", goTo: -1 }
-      ]
-    },
-
-    {
-      id: 101,
-      showDoor: true,
-      escapeRun: true,
-      text: "The cage swings open. You sprint through and never look back.",
-      options: [
-        { text: "Main Menu", goTo: -1 }
-      ]
+    // ── 3. SOUND CONTROLLER (EASY PLACEHOLDERS) ─────────────────────────
+    // To add real sounds later, uncomment the lines inside this function!
+    function playSoundEffect(soundType) {
+        if (soundType === "click") {
+            console.log("Playing Sound: UI Button Clicked");
+            // new Audio("sounds/click.mp3").play();
+        }
+        if (soundType === "scare") {
+            console.log("Playing Sound: Loud Jumpscare Scream!");
+            // new Audio("sounds/scream.mp3").play();
+        }
+        if (soundType === "arrow") {
+            console.log("Playing Sound: Arrow shooting swissssh!");
+            // new Audio("sounds/arrow.mp3").play();
+        }
+        if (soundType === "win") {
+            console.log("Playing Sound: Victory Fanfare");
+            // new Audio("sounds/victory.mp3").play();
+        }
     }
 
-  ];
+    // ── 4. HELPER FUNCTION: RESET THE VIEW ──────────────────────────────
+    // Turns off every image and option before we build a brand new scene layout.
+    function resetScreen() {
+        robertImg.style.display = "none";
+        switchImg.style.display = "none";
+        keypadImg.style.display = "none";
+        arrowImg.style.display = "none";
+        skullImg.style.display = "none";
+        doorImg.style.display = "none";
+        heartImg.style.display = "none";
+        
+        // Default hands back to visible state
+        leftHand.style.display = "block";
+        rightHand.style.display = "block";
 
-  // ── NAV BUTTONS ─────────────────────────────────────────────────────────
-  // These buttons exist only on the relevant page; the checks prevent errors
-  // when a button is missing (e.g., "startButton" only exists on index.html).
+        // Remove any specialty background override classes
+        gameBody.className = "";
+        
+        // Hide text keyboard inputs, clear past input text values
+        typingArea.style.display = "none";
+        typingInput.value = "";
 
-  const startBtn = document.getElementById("startButton");
-  const menuBtn  = document.getElementById("menuButton");
-
-  if (startBtn) startBtn.onclick = () => { window.location.href = "inGame.html"; };
-  if (menuBtn)  menuBtn.onclick  = () => { window.location.href = "index.html"; };
-
-  // ── MUSIC ────────────────────────────────────────────────────────────────
-  // .catch() silences the browser error that fires if autoplay is blocked.
-
-  if (audio.music) audio.music.play().catch(() => {});
-
-  if (ui.typingButton) {
-    ui.typingButton.addEventListener("click", checkTypingAnswer);
-  }
-
-  if (ui.typingInput) {
-    ui.typingInput.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") checkTypingAnswer();
-    });
-  }
-
-  // ── KEYBOARD INPUT ───────────────────────────────────────────────────────
-  // Fires every time the player presses a key.
-  // If a QTE is active, we check whether the right key was pressed.
-
-  window.addEventListener("keydown", function (e) {
-    if (!qteActive) return;
-
-    const key    = e.key.toUpperCase();
-    const needed = currentRoom.requiredKeys;
-
-    if (key === needed[qteIndex]) {
-      qteIndex++;
-      renderKeyBoxes(needed, qteIndex);
-      if (qteIndex >= needed.length) {  // all keys entered correctly
-        stopTimers();
-        goToRoom(currentRoom.qteSuccessGoTo);
-      }
-    } else {
-      stopTimers();
-      goToRoom(99);  // wrong key → instant game over
-    }
-  });
-
-  // ── ROOM LOADER ──────────────────────────────────────────────────────────
-  // This is the main switch. It loads the next room when the player clicks.
-
-  function goToRoom(id) {
-    if (id === -1) { window.location.href = "index.html"; return; }
-
-    stopTimers();
-    qteActive = false;
-    qteIndex  = 0;
-
-    const room = ROOMS.find(r => r.id === id);
-    if (!room) return;
-    currentRoom = room;
-
-    setBackground(room);
-    setImages(room);
-    ui.text.innerText = room.text;
-    setControls(room);
-
-    if (room.timeLimit) startTimer(room);
-    if (room.playScream && audio.scream) audio.scream.play().catch(() => {});
-  }
-
-  // ── HELPER FUNCTIONS ─────────────────────────────────────────────────────
-  // Each helper has one simple job:
-  // setBackground = change the look
-  // setImages = show or hide pictures
-  // setControls = decide what buttons or typing box appear
-
-  function setBackground(room) {
-    document.body.className = "";
-    if (room.showDoor || room.id === 100 || room.id === 101) {
-      document.body.classList.add("doorScene");
-    }
-    if (room.escapeRun) {
-      document.body.classList.add("rushScene");
-    }
-    if (room.isBlackout)                   document.body.classList.add("blackout");
-    if (room.bloodFlash)                   document.body.classList.add("bloodFlash");
-    if (room.showSwitch || room.showKeypad) document.body.classList.add("darkScene");
-  }
-
-  function setImages(room) {
-    // Hide everything first, then selectively show what this room needs.
-    img.robert.classList.remove("robert-closeup", "robert-left", "robert-center", "robert-right");
-    img.arrow.classList.remove("shooting", "visible");
-
-    hide(img.robert);
-    hide(img.switch);
-    hide(img.keypad);
-    hide(img.skull);
-    hide(img.door);
-    hide(img.arrow);
-
-    if (room.escapeRun) {
-      hide(img.robert);
-      hide(img.lHand);
-      hide(img.rHand);
-    } else if (room.showRobert || room.robertCloseup) {
-      const poseClass = room.robertCloseup ? "robert-closeup" : `robert-${room.robertPosition || "center"}`;
-      show(img.robert, poseClass);
+        // Completely empty out the old selection buttons box container
+        choiceButtons.innerHTML = "";
     }
 
-    if (room.showSwitch) show(img.switch, "switch-glow");
-    if (room.showKeypad) show(img.keypad);
-    if (room.showSkull)  show(img.skull);
-    if (room.showDoor)   show(img.door, "door-glow");
-
-    if (room.shootArrow) {
-      img.arrow.classList.remove("hidden");
-      img.arrow.classList.add("visible", "shooting");
+    // ── 5. HELPER FUNCTION: CREATE OPTION BUTTONS ───────────────────────
+    // A clean utility function that generates buttons inside the bottom UI panel.
+    function createOptionButton(buttonText, targetRoomNumber) {
+        const newBtn = document.createElement("button");
+        newBtn.innerText = buttonText;
+        
+        // When clicked, run room change function passing target room destination
+        newBtn.onclick = function() {
+            playSoundEffect("click");
+            goToRoom(targetRoomNumber);
+        };
+        choiceButtons.appendChild(newBtn);
     }
 
-    // Hands represent the player's first-person view;
-    // hide them in full-screen horror moments.
-    if (room.hideHands) {
-      hide(img.lHand);
-      hide(img.rHand);
-    } else {
-      show(img.lHand);
-      show(img.rHand);
+    // ── 6. THE CORE GAME STATE ENGINE ────────────────────────────────────
+    // Main execution function. Reads the room number and explicitly renders it.
+    function goToRoom(roomNumber) {
+        currentRoom = roomNumber;
+        resetScreen();
+
+        switch(roomNumber) {
+
+            case 1:
+                dialogueText.innerText = "You stepped inside the cold stone cave...";
+                createOptionButton("Investigate the dark tunnel.", 2);
+                createOptionButton("Hide underneath a big heavy desk.", 10);
+                break;
+
+            case 2:
+                dialogueText.innerText = "A physical light switch is right here on the stone wall. Move your mouse up and click directly on it to flip it!";
+                gameBody.classList.add("darkScene");
+                
+                // Make the physical element switch visible on screen so user can click it directly!
+                switchImg.style.display = "block"; 
+                break;
+
+            case 3:
+                dialogueText.innerText = "THE LIGHTS WENT OUT! RUN BEFORE HE GRABS YOU!";
+                gameBody.classList.add("blackout");
+                createOptionButton("DUCK INTO THE CORNER OF THE CAVE", 4);
+                break;
+
+            case 4:
+                dialogueText.innerText = "Teacher Robert CHARGES TOWARDS YOU! Quick, click the glowing survival heart appearing on screen to dodge him!";
+                robertImg.style.display = "block";
+                robertImg.className = "robert-center"; 
+                
+                // Interactive event: Make a survival heart element appear to click on
+                heartImg.style.display = "block";
+                break;
+
+            case 5:
+                dialogueText.innerText = "You successfully dodge his charging attack! He stumbles backwards into the center.";
+                robertImg.style.display = "block";
+                robertImg.className = "robert-center";
+                createOptionButton("Draw your heavy bow and shoot.", 6);
+                break;
+
+            case 6:
+                dialogueText.innerText = "HE SEES YOU. Type 'FIRE' exactly into the box below to release the flaming arrow!";
+                robertImg.style.display = "block";
+                robertImg.className = "robert-center";
+                typingArea.style.display = "block"; // Show the user text input area
+                break;
+
+            case 7:
+                dialogueText.innerText = "DIRECT HIT. He staggers backward away from you into the abyss.";
+                playSoundEffect("arrow");
+                robertImg.style.display = "block";
+                robertImg.className = "robert-left";
+                
+                // Show the flaming arrow element running its fly CSS movement script animation
+                arrowImg.style.display = "block";
+                arrowImg.className = "shooting";
+
+                createOptionButton("Sprint for the exit.", 8);
+                break;
+
+            case 8:
+                dialogueText.innerText = "Robert blocks the final exit path, absolutely FURIOUS.";
+                robertImg.style.display = "block";
+                robertImg.className = "robert-center";
+                createOptionButton("Punch him square in the jaw.", 9);
+                createOptionButton("Try to reason with him calmly.", 11);
+                break;
+
+            case 9:
+                dialogueText.innerText = "You punch him square in the jaw! Run away while he's staggered!";
+                robertImg.style.display = "block";
+                robertImg.className = "robert-right";
+                createOptionButton("Keep running without stopping.", 12);
+                break;
+
+            case 10:
+                dialogueText.innerText = "You crawl under the desk. His loud footsteps echo near and stop. He is inches away... you failed to escape.";
+                createOptionButton("See what happens...", 99);
+                break;
+
+            case 11:
+                dialogueText.innerText = "He listens to you for a split second, then smashes you directly into the stone wall. Everything turns dark.";
+                createOptionButton("Continue...", 99);
+                break;
+
+            case 12:
+                dialogueText.innerText = "The heavy cave security gate snaps open. You bolt out into the darkness ahead!";
+                gameBody.classList.add("rushScene");
+                leftHand.style.display = "none";  // Hiding hands for perspective cinematic zoom style
+                rightHand.style.display = "none";
+                createOptionButton("Keep running toward the light.", 13);
+                break;
+
+            case 13:
+                dialogueText.innerText = "A terminal code keypad flashes in the dark. Type the safety exit code '1975' to unlock the exit door!";
+                gameBody.classList.add("darkScene");
+                keypadImg.style.display = "block";
+                typingArea.style.display = "block"; // Open input interaction system
+                break;
+
+            case 99: // GAME OVER SCENE STATE
+                dialogueText.innerText = "GAME OVER. Teacher Robert captured you.";
+                playSoundEffect("scare");
+                
+                gameBody.classList.add("bloodFlash");
+                skullImg.style.display = "block";
+                
+                robertImg.style.display = "block";
+                robertImg.className = "robert-closeup"; // Trigger giant zoom animation via style class
+                
+                leftHand.style.display = "none";
+                rightHand.style.display = "none";
+
+                createOptionButton("Return to Main Menu", -1);
+                break;
+
+            case 100: // VICTORY SCENE STATE
+                dialogueText.innerText = "You successfully opened the heavy gate and escaped into the sunlight! You survived.";
+                playSoundEffect("win");
+                gameBody.classList.add("doorScene");
+                doorImg.style.display = "block";
+                
+                createOptionButton("Play Again", -1);
+                break;
+        }
     }
-  }
 
-  function setControls(room) {
-    ui.buttons.innerHTML = "";
-    ui.keys.innerHTML    = "";
-    ui.timer.className   = "hidden";
+    // ── 7. DIRECT INTERACTION EVENT LISTENERS ────────────────────────────
+    
+    // Direct Image Interaction Event 1: Clicking the physical Light Switch
+    switchImg.onclick = function() {
+        goToRoom(3); // Moves straight to blackout scene
+    };
 
-    if (ui.typingArea) ui.typingArea.className = "hidden";
+    // Direct Image Interaction Event 2: Clicking the Life Saving Heart graphic
+    heartImg.onclick = function() {
+        goToRoom(5); // Moves straight to escape success scene
+    };
 
-    if (room.typingPrompt) {
-      if (ui.typingArea) ui.typingArea.className = "";
-      if (ui.typingInput) ui.typingInput.value = "";
-      return;
+    // Text Input Submission Handler: Typing Interaction Box Button
+    typingButton.onclick = function() {
+        checkTypingSubmission();
+    };
+
+    // Allow players to hit the "Enter" key on keyboard to submit typing texts
+    typingInput.onkeydown = function(event) {
+        if (event.key === "Enter") {
+            checkTypingSubmission();
+        }
+    };
+
+    // Evaluates typed input strings depending entirely on what room state user is in
+    function checkTypingSubmission() {
+        const userText = typingInput.value.trim().toUpperCase();
+
+        if (currentRoom === 6) {
+            if (userText === "FIRE") {
+                goToRoom(7);
+            } else {
+                goToRoom(99); // Wrong entry results in game over
+            }
+        } 
+        else if (currentRoom === 13) {
+            if (userText === "1975") {
+                goToRoom(100); // Correct code yields Victory!
+            } else {
+                goToRoom(99);
+            }
+        }
     }
 
-    if (room.requiredKeys) {
-      qteActive = true;
-      renderKeyBoxes(room.requiredKeys, 0);
-      return;
-    }
+    // Top Right Emergency Escape Menu Button navigation click handler
+    menuButton.onclick = function() {
+        window.location.href = "index.html";
+    };
 
-    room.options.forEach(opt => {
-      const btn     = document.createElement("button");
-      btn.innerText = opt.text;
-      btn.onclick   = () => goToRoom(opt.goTo);
-      ui.buttons.appendChild(btn);
-    });
-  }
-
-  function checkTypingAnswer() {
-    if (!currentRoom || !currentRoom.typingPrompt) return;
-
-    const typed = (ui.typingInput?.value || "").trim().toUpperCase();
-    const answer = currentRoom.typingPrompt.toUpperCase();
-
-    if (typed === answer) {
-      goToRoom(currentRoom.typingSuccessGoTo || 1);
-    } else {
-      goToRoom(99);
-    }
-  }
-
-  function startTimer(room) {
-    let timeLeft        = room.timeLimit;
-    ui.timer.className  = "";
-    ui.fill.style.width = "100%";
-
-    timerTick = setInterval(() => {
-      timeLeft -= 50;
-      const pct = Math.max(0, (timeLeft / room.timeLimit) * 100);
-      ui.fill.style.width = pct + "%";
-    }, 50);
-
-    timerTimeout = setTimeout(() => goToRoom(room.timeoutGoTo), room.timeLimit);
-  }
-
-  function stopTimers() {
-    clearTimeout(timerTimeout);
-    clearInterval(timerTick);
-  }
-
-  function renderKeyBoxes(keys, currentIndex) {
-    ui.keys.innerHTML = "";
-    keys.forEach((key, i) => {
-      const box     = document.createElement("div");
-      box.className = i < currentIndex ? "keyBox correct" : "keyBox";
-      box.innerText = key;
-      ui.keys.appendChild(box);
-    });
-  }
-
-  function show(el, extraClass = "") {
-    if (!el) return;
-    el.classList.remove("hidden");
-    el.classList.add("visible");
-    extraClass.split(/\s+/).filter(Boolean).forEach(cls => el.classList.add(cls));
-  }
-
-  function hide(el) {
-    if (!el) return;
-    el.classList.remove("visible", "shooting");
-    el.classList.add("hidden");
-  }
-
-  // ── START ────────────────────────────────────────────────────────────────
-  // Only kick off the game if the dialogue box exists (we're on inGame.html).
-
-  if (ui.text) goToRoom(1);
-
+    // ── 8. EXECUTION INITIALIZER ────────────────────────────────────────
+    // Kick off the whole sequence game starting on scene space 1 on execution load
+    goToRoom(1);
 });
