@@ -1,54 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Cave</title>
+  <title>Survive Teacher Robert</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body id="gameBody">
 
-  <!-- Top-right menu button to exit the game -->
-  <button id="menuButton">Menu</button>
+<body>
 
-  <!-- The visual stage where all game images live -->
+  <!-- Top corner emergency escape button -->
+  <button id="menuButton">Back to Menu</button>
+
+  <!-- The screen area where images appear -->
   <div id="gameWorld">
 
-    <!-- Game images. The JavaScript will toggle their display styles to show/hide them -->
-    <img id="robertImage" src="Robert Background Removed Default.png" style="display: none;">
-    <img id="lightSwitchImage" src="lightswitch(flippable).png" style="display: none;">
-    <img id="keypadImage" src="Keypad.png" style="display: none;">
-    <img id="flamingArrowImage" src="Flaming arrow.png" style="display: none;">
-    <img id="skullImage" src="skull.png" style="display: none;">
-    <img id="doorImage" src="door.png" style="display: none;">
-    
-    <!-- New Interactive Element: Life Saving Heart Display -->
-    <img id="heartImage" src="heart.png" style="display: none;">
+    <!-- =======================================================================
+         AUDIO TRACK TRACKERS: PUT YOUR AUDIO FILE PATHS HERE!
+         ======================================================================= -->
 
-    <!-- First-person view arms at the bottom -->
-    <img id="leftHandImage" src="left hand.png" style="display: block;">
-    <img id="rightHandImage" src="right hand.png" style="display: block;">
+    <!-- 1. BACKGROUND MUSIC: Change "Music/BGM.mp3" to match your file -->
+    <audio id="bgMusic" src="Music/BGM.mp3" loop></audio>
 
+    <!-- 2. JUMPSCARE SOUND: Change "Music/Loud Scream Sound Effect 4.mp3" to match your file -->
+    <audio id="scareSound" src="Music/Loud Scream Sound Effect 4.mp3"></audio>
+
+    <!-- =======================================================================
+         VISUAL LAYERS AND IMAGES
+         ======================================================================= -->
+
+    <!-- BASE WALLPAPER BACKGROUND -->
+    <img id="caveBackground" src="Images/Cave.png">
+
+    <!-- Game Characters & Items (Hidden by default until game.js calls them) -->
+    <img id="robertImage" src="Images/Robert Background Removed Default.png" class="hidden">
+    <img id="lightSwitchImage" src="Images/lightswitch(flippable).png" class="hidden">
+    <img id="keypadImage" src="Images/Keypad.png" class="hidden">
+    <img id="flamingArrowImage" src="Images/Flaming arrow.png" class="hidden">
+    <img id="skullImage" src="Images/skull.png" class="hidden">
+    <img id="doorImage" src="Images/door.png" class="hidden">
+    <img id="heartImage" src="Images/heart.png" class="hidden">
+
+    <!-- Your first-person view arms -->
+    <img id="leftHandImage" src="Images/left hand.png">
+    <img id="rightHandImage" src="Images/right hand.png">
   </div>
 
-  <!-- The bottom user interface panel -->
+  <!-- Bottom dialogue box section -->
   <div id="uiPanel">
-    
-    <!-- Area displaying current story dialogue text -->
-    <p id="dialogueText">Loading story...</p>
-    
-    <!-- Text typing section (Hidden by default) -->
-    <div id="typingArea" style="display: none;">
-      <input id="typingInput" type="text" placeholder="Type answer here..." autocomplete="off">
-      <button id="typingButton" type="button">Submit</button>
+
+    <!-- Simple countdown timer graphic line -->
+    <div id="timerBar" class="hidden">
+      <div id="timerFill"></div>
     </div>
-    
-    <!-- Container where choice choices buttons are dynamically spawned by JS -->
+
+    <!-- Story text readout -->
+    <p id="dialogueText">Loading game...</p>
+
+    <!-- Text entry row -->
+    <div id="typingArea" class="hidden">
+      <input id="typingInput" type="text" placeholder="Type here fast!...">
+      <button id="typingButton">SUBMIT</button>
+    </div>
+
+    <!-- Simple choice buttons container -->
     <div id="choiceButtons"></div>
-    
+
   </div>
 
-  <!-- External game logic script linking -->
   <script src="game.js"></script>
 </body>
+
 </html>

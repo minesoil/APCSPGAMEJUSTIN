@@ -1,19 +1,46 @@
-# Beginner-Friendly Escape Game: Teacher Robert Horror
+# 🪓 Survive Teacher Robert — Ultimate Developer & Modding Guide
 
-This implementation is intentionally designed for a beginner web development student to fully comprehend, alter, and seamlessly explain in detail during an evaluation interview[cite: 1].
+Welcome to the official, master-level documentation for **Survive Teacher Robert**, an immersive, choice-driven survival horror game built specifically for web browsers! 
 
-## Structural Overview
-* **`index.html`**: Set up for the landing splash main menu screen page. Handles initial button routing click mechanics[cite: 2].
-* **`inGame.html`**: Core viewport node layout. Contains explicit `<img>` tags representing game world assets and text interfaces positioned within structured overlay levels[cite: 3].
-* **`style.css`**: Manages alignment and coordinate positions utilizing explicit properties like `position: absolute`, standard layouts (`display: flex`), and basic structural classes[cite: 4].
-* **`game.js`**: Controls the story timeline through an uncomplicated state switch routine[cite: 1].
+Whether you are a 10th grader learning to program, a middle schooler looking to understand how video games work, or a developer trying to add your own custom twist to the game, this guide breaks down every single line of code, folder structure, and engine mechanic in the simplest way possible.
 
-## Key Interactions to Describe to Your Teacher
-1. **The Core Loop (`goToRoom`)**: When changing rooms, a helper function (`resetScreen`) sets all elements to `display = "none"`. The execution script reads the current target number inside a simple `switch-case` to selectively switch necessary active elements to `display = "block"` or custom setup classes[cite: 1].
-2. **Dynamic UI Rendering**: Instead of writing convoluted object code arrays, the layout explicitly appends single simple element buttons to the container DOM block sequentially using `createOptionButton()`[cite: 1].
-3. **Interactive Click Triggers**: Instead of capturing complex automated keyboard loops, real asset elements on screen (like the light switch or heart) handle direct `onclick` interaction methods naturally to step the game layout state forward seamlessly[cite: 1].
-4. **Text Code Validation**: Standard typing boxes utilize simple text normalizations (`.toUpperCase()`) checking explicit input phrases ("FIRE" or "1975") against basic `if/else` safety walls[cite: 1].
+---
 
-## Adding Real Sound Extensions
-Look inside `game.js` for the `playSoundEffect` handler. To include sound effects later, drop files directly into an accessible local sound folder and activate the comment rows:
-`new Audio("sound_file.mp3").play();`
+## 🗺️ 1. The Big Picture: How Web Games Work
+
+Before digging into the code files, you must understand how a web browser builds a game on your screen. It uses a triple-layer system working together like a human body:
+
+1. **The Skeleton (`HTML`):** Sets up *what* physical items exist on the stage (images, hidden text boxes, audio files, buttons).
+2. **The Muscles & Paint (`CSS`):** Decides *how* those elements look (the red glow, the deep black rooms, hand positions, and the adrenaline camera tremors).
+3. **The Brain (`JavaScript` / `JS`):** Coordinates the *logic*. It tracks what room you are in, spins your countdown timers, scans individual keyboard presses, handles button clicks, and triggers the jumpscare when you fail.
+
+---
+
+## 📂 2. Master Project Directory
+
+To keep your project from breaking, all your files must live inside one main folder on your computer. Capital letters and file extensions (`.png`, `.js`, `.css`) matter! If you rename a file or move it out of this folder, the browser will lose it, resulting in a blank white screen.
+
+```text
+📁 Teacher-Robert-Game/
+│
+├── 📄 index.html          (The Main Menu / Landing Title Screen)
+├── 📄 inGame.html         (The Gameplay Stage Screen Arena)
+├── 📄 style.css           (The Visual Rules, Alignments, and Animations)
+├── 📄 game.js            (The Data Engine Brain & State Timeline)
+│
+├── 📁 Images/             (Your Graphic Art Assets Folder)
+│   ├── Cave.png                              (Gameplay background wallpaper)
+│   ├── Home Screen.png                       (Main menu background wallpaper)
+│   ├── Robert Background Removed Default.png (Our antagonist, Teacher Robert)
+│   ├── lightswitch(flippable).png            (Room 2 circuit breaker item)
+│   ├── Keypad.png                            (Room 10 escape vault panel)
+│   ├── Flaming arrow.png                     (Room 7 flying weapon projectile)
+│   ├── skull.png                             (Game Over death screen decal)
+│   ├── door.png                              (Victory escape scene hatch)
+│   ├── heart.png                             (Robert's flashing weak-spot emblem)
+│   ├── left hand.png                         (Your player's left arm perspective)
+│   └── right hand.png                        (Your player's right arm perspective)
+│
+└── 📁 Music/              (Your Ambient Sound Effects Folder)
+    ├── BGM.mp3            (Looping background tension tracker music)
+    └── Loud Scream Sound Effect 4.mp3 (The instant death jumpscare audio clip)

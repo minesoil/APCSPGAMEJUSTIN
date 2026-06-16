@@ -1,202 +1,261 @@
 /* ── GLOBAL SCREEN RESET ────────────────────────────────────────────────── */
 * {
-  margin:     0;
-  padding:    0;
-  box-sizing: border-box;   /* Keeps sizing layout calculations balanced */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   font-family: "Courier New", monospace;
-  color:       white;
-  overflow:    hidden;      /* Disables scrolling side scrolls completely */
-  height:      100vh;       /* Fixes layout full height of target windows */
+  color: white;
+  overflow: hidden;
+  height: 100vh;
+  background-color: black;
 }
 
-/* ── MAIN MENU STYLING CONTAINER ────────────────────────────────────────── */
+/* ── MAIN LANDING MENU ──────────────────────────────────────────────────── */
 #mainMenuBody {
-  background: url("Home Screen.jpg") center / cover no-repeat;
-  display:    flex;
-  justify-content: center;  /* Centers horizontally */
-  align-items:     center;  /* Centers vertically */
+  background: url("Images/Home Screen.png") center / cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
 }
 
 #menuContainer {
   text-align: center;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 40px;
+  border: 2px solid #ff3333;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
 }
 
 #gameTitle {
-  font-size:   72px;
-  color:       #ff3333;
-  text-shadow: 0 0 24px red;
-  margin-bottom: 8px;
+  font-size: 56px;
+  color: #ff3333;
+  text-shadow: 0 0 20px red;
+  margin-bottom: 10px;
 }
 
 #gameSubtitle {
-  font-size:    18px;
-  letter-spacing: 4px;
-  color:        #cc9999;
-  margin-bottom: 32px;
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: #cc9999;
+  margin-bottom: 30px;
 }
 
-/* ── INTERACTION BUTTON ELEMENTS ────────────────────────────────────────── */
+/* ── GAME PLAY FIELD OVERLAYS ───────────────────────────────────────────── */
+#gameBody {
+  background-color: black;
+  position: relative;
+}
+
+#caveBackground {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* SCREEN MODIFIER STYLES */
+.blackout,
+.totalBlackout {
+  background-color: black !important;
+}
+
+.bloodFlash {
+  background-color: #aa0000 !important;
+}
+
+/* ── INTERACTION CHANNELS AND BUTTONS ──────────────────────────────────── */
 button {
-  background:    #111;
-  border:        1px solid #ff3333;
-  color:         white;
-  padding:       10px 22px;
-  cursor:        pointer;     /* Changes cursor to a pointing finger hand */
-  font-family:   "Courier New", monospace;
-  font-size:     14px;
-  letter-spacing: 1px;
-  transition:    background 0.15s;
+  background: #151515;
+  border: 1px solid #ff3333;
+  color: white;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
 }
 
 button:hover {
-  background: #2a0000;      /* Dark red tone highlight overlay changes */
+  background: #3a0000;
 }
 
 #menuButton {
   position: absolute;
-  top:      14px;
-  right:    14px;
-  z-index:  100;            /* Keeps element placed higher on visual stack */
+  top: 15px;
+  right: 15px;
+  z-index: 100;
 }
 
-/* ── IN-GAME BACKGROUND OVERRIDES ───────────────────────────────────────── */
-#gameBody {
-  background: url("Cave.jpg") center / 115% no-repeat;
-  position:   relative;
-}
-
-#gameBody.blackout   { background: black; }
-#gameBody.bloodFlash { background: #bb0000; }
-
-#gameBody.darkScene  {
-  background: linear-gradient(180deg, rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url("Cave.jpg") center / cover no-repeat;
-}
-#gameBody.rushScene {
-  background: linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url("Cave.jpg") center / cover no-repeat;
-  animation: rushZoom 1.6s ease-in forwards;
-}
-#gameBody.doorScene {
-  background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.9)), url("Cave.jpg") center / cover no-repeat;
-}
-
-/* ── LAYERING GAME WORLD VIEWPORT ───────────────────────────────────────── */
 #gameWorld {
   position: absolute;
-  width:    100%;
-  height:   100%;
-  z-index:  2;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
-/* ── POSITIONING CHARACTERS AND ITEMS ───────────────────────────────────── */
+.hidden {
+  display: none !important;
+}
+
+.visible {
+  display: block !important;
+}
+
+/* CHARACTER AND CHARACTER LAYOUT COORDINATES */
 #robertImage {
-  position:   absolute;
-  width:       260px;
-  z-index:     3;
+  position: absolute;
+  width: 250px;
+  z-index: 2;
 }
 
-/* Positioning adjustments controlled cleanly using class states via script */
-.robert-left   { left: 20%; top: 55%; transform: translate(-50%, -50%); }
-.robert-center { left: 50%; top: 50%; transform: translate(-50%, -50%); }
-.robert-right  { left: 78%; top: 55%; transform: translate(-50%, -50%); }
-.robert-closeup {
-  width: 450px !important;
-  left: 50%;
+.robert-left {
+  left: 10%;
   top: 40%;
-  transform: translate(-50%, -50%);
+}
+
+.robert-center {
+  left: 42%;
+  top: 38%;
+}
+
+.robert-right {
+  left: 75%;
+  top: 40%;
+}
+
+.robert-closeup {
+  width: 420px !important;
+  left: 36%;
+  top: 25%;
+}
+
+/* Clones for simultaneous injection */
+.temp-clone {
+  position: absolute;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.clone-pos1 {
+  left: 7%;
+  top: 32%;
+  width: 180px !important;
+}
+
+.clone-pos2 {
+  left: 28%;
+  top: 47%;
+  width: 200px !important;
+}
+
+.clone-pos3 {
+  left: 54%;
+  top: 38%;
+  width: 190px !important;
+}
+
+.clone-pos4 {
+  left: 76%;
+  top: 34%;
+  width: 175px !important;
 }
 
 #lightSwitchImage {
-  position:   absolute;
-  width:      80px;
-  left:       48%;
-  top:        35%;
-  z-index:    5;
-  cursor:     pointer;
+  position: absolute;
+  width: 90px;
+  left: 45%;
+  top: 35%;
+  z-index: 3;
+  cursor: pointer;
 }
 
 #keypadImage {
-  position:  absolute;
-  width:     220px;
-  left:      50%;
-  top:       45%;
-  transform: translate(-50%, -50%);
-  z-index:   3;
+  position: absolute;
+  width: 200px;
+  left: 43%;
+  top: 30%;
+  z-index: 3;
 }
 
 #heartImage {
-  position:  absolute;
-  width:     80px;
-  left:      50%;
-  top:       25%;
-  transform: translate(-50%, -50%);
-  z-index:   6;
-  cursor:    pointer;
+  position: absolute;
+  width: 80px;
+  left: 48%;
+  top: 20%;
+  z-index: 4;
+  cursor: pointer;
 }
 
-/* ── PLAYER HANDS VIEWPORT POSITION ────────────────────────────────────── */
-#leftHandImage {
+#leftHandImage,
+#rightHandImage {
   position: absolute;
-  left:     0;
-  bottom:   110px;
-  width:    210px;
-  z-index:  10;
+  bottom: 120px;
+  width: 200px;
+  z-index: 5;
+}
+
+#leftHandImage {
+  left: 0;
 }
 
 #rightHandImage {
-  position: absolute;
-  right:    0;
-  bottom:   110px;
-  width:    210px;
-  z-index:  10;
+  right: 0;
+}
+
+/* IMMERSION ACTION: Makes hands shake violently when stalked */
+.panicShake {
+  animation: adrenalineTremor 0.15s infinite alternate;
 }
 
 #flamingArrowImage {
   position: absolute;
-  width:    200px;
-  left:     -220px;
-  top:      46%;
-  z-index:  3;
+  width: 180px;
+  left: -200px;
+  top: 45%;
+  z-index: 3;
 }
 
 #flamingArrowImage.shooting {
-  animation: arrowFly 0.55s ease-in forwards;
+  animation: arrowFlightTrack 0.5s linear forwards;
 }
 
-#skullImage, #doorImage {
-  position:  absolute;
-  width:     130px;
-  left:      50%;
-  top:       25%;
-  transform: translateX(-50%);
-  z-index:   5;
+#skullImage,
+#doorImage {
+  position: absolute;
+  width: 120px;
+  left: 45%;
+  top: 20%;
+  z-index: 3;
 }
 
-/* ── LOWER DIALOGUE BOX PANEL PANEL ────────────────────────────────────── */
+/* ── CONSOLE PANEL ──────────────────────────────────────────────────────── */
 #uiPanel {
-  position:   absolute;
-  bottom:     22px;
-  left:       50%;
-  transform:  translateX(-50%);
-  width:      70%;
-  background: rgba(0, 0, 0, 0.9);
-  border:     2px solid #ff3333;
-  padding:    18px 22px;
-  z-index:    90; 
+  position: absolute;
+  bottom: 20px;
+  left: 15%;
+  width: 70%;
+  background: rgba(0, 0, 0, 0.95);
+  border: 2px solid #ff3333;
+  padding: 20px;
+  z-index: 10;
 }
 
 #dialogueText {
-  font-size:   16px;
-  line-height: 1.5;
-  min-height:  40px;
-  margin-bottom: 14px;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 15px;
 }
 
 #choiceButtons {
   display: flex;
-  gap:     12px;
+  gap: 15px;
 }
 
 #typingArea {
@@ -204,21 +263,60 @@ button:hover {
 }
 
 #typingInput {
-  background: #000;
+  background: black;
   border: 1px solid #ff3333;
   color: white;
   padding: 8px;
   font-family: "Courier New", monospace;
-  width: 200px;
+  width: 250px;
+  margin-right: 10px;
 }
 
-/* ── BASIC MOVEMENTS KEYFRAMES STYLING ──────────────────────────────────── */
-@keyframes rushZoom {
-  from { background-size: 110%; }
-  to   { background-size: 170%; }
+/* KEYPRESS HUD DISPLAY BOX */
+#keyPromptBox {
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 8px;
+  color: #ffcc00;
+  background: #220000;
+  border: 1px dashed #ff3333;
+  padding: 10px;
+  margin-top: 10px;
+  text-align: center;
+  display: inline-block;
 }
 
-@keyframes arrowFly {
-  from { left: -220px; }
-  to   { left: 110vw;  }
+/* ── COUNTDOWN PROGRESS TIMER ───────────────────────────────────────────── */
+#timerBar {
+  height: 6px;
+  background: #333;
+  margin-bottom: 15px;
+  border: 1px solid #555;
+}
+
+#timerFill {
+  height: 100%;
+  width: 100%;
+  background: red;
+}
+
+/* CAMERA ANIMATION MATRICES */
+@keyframes arrowFlightTrack {
+  from {
+    left: -200px;
+  }
+
+  to {
+    left: 100vw;
+  }
+}
+
+@keyframes adrenalineTremor {
+  0% {
+    transform: translate(2px, 1px) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-1px, -2px) rotate(1deg);
+  }
 }
