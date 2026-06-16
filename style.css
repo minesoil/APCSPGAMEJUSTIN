@@ -1,200 +1,306 @@
-* { /*asterick means global cchange */
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ── GLOBAL RESET ────────────────────────────────────────────────────────── */
+/* Remove the default spacing and size quirks that browsers add automatically. */
+
+* {
+  margin:     0;
+  padding:    0;
+  box-sizing: border-box;   /* makes width/height include border and padding */
 }
 
 body {
-    font-family: Courier New, monospace;
-    color: white;
-    overflow: hidden;
-    height: 100vh;
+  font-family: "Courier New", monospace;
+  color:       white;
+  overflow:    hidden;      /* stop scroll bars from appearing */
+  height:      100vh;       /* fill the full visible screen height */
 }
+
+
+/* ── MAIN MENU ───────────────────────────────────────────────────────────── */
 
 #mainMenuBody {
-    background: url('Images/Home Screen.png') center/cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#gameBody {
-    background: url('Images/Cave.png') center/115%;
-    position: relative;
-}
-#gameBody.bloodFlash {
-    background: red;
-}
-
-#gameBody.darkScene {
-    background: black;
-}   
-
-#gameBody.blackout {
-    background: black;
-}
-
-#gameBody::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 25%;
-    height: 100%;
-    background: radial-gradient(circle at left, black 30%, transparent 80%);
-}
-
-#gameTitle {
-    font-size: 64px;
-    color: #ff3333;
-    text-shadow: 0 0 20px red;
+  background: url("Images/Home_Screen.png") center / cover no-repeat;
+  display:    flex;
+  justify-content: center;
+  align-items:     center;
 }
 
 #menuContainer {
-    text-align: center;
+  text-align: center;
 }
 
+#gameTitle {
+  font-size:   72px;
+  color:       #ff3333;
+  text-shadow: 0 0 24px red, 0 0 6px #ff000088;
+  margin-bottom: 8px;
+}
+
+#gameSubtitle {
+  font-size:    18px;
+  letter-spacing: 4px;
+  color:        #cc9999;
+  margin-bottom: 32px;
+}
+
+
+/* ── GAME PAGE ───────────────────────────────────────────────────────────── */
+
+#gameBody {
+  background: url("Images/Cave.png") center / 115% no-repeat;
+  position:   relative;
+}
+
+/* Darken the left edge to give the cave atmosphere */
+#gameBody::before {
+  content:    "";
+  position:   absolute;
+  left:       0;
+  top:        0;
+  width:      22%;
+  height:     100%;
+  background: radial-gradient(circle at left, black 20%, transparent 80%);
+  pointer-events: none;
+  z-index:    1;
+}
+
+/* Don't show the dark edge when it would clash with a solid background */
+#gameBody.blackout::before,
+#gameBody.bloodFlash::before,
+#gameBody.darkScene::before {
+  display: none;
+}
+
+/* Override backgrounds for special room states */
+#gameBody.blackout   { background: black; }
+#gameBody.bloodFlash { background: #bb0000; }
+#gameBody.darkScene  { background: #0a0a0a; }
+
+
+/* ── BUTTONS (shared style) ──────────────────────────────────────────────── */
+
 button {
-    background: #111;
-    border: 1px solid #ff3333;
-    color: white;
-    padding: 10px 20px;
-    cursor: pointer;
+  background:    #111;
+  border:        1px solid #ff3333;
+  color:         white;
+  padding:       10px 22px;
+  cursor:        pointer;
+  font-family:   "Courier New", monospace;
+  font-size:     14px;
+  letter-spacing: 1px;
+  transition:    background 0.15s;
+}
+
+button:hover {
+  background: #2a0000;
 }
 
 #menuButton {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 100;
+  position: absolute;
+  top:      14px;
+  right:    14px;
+  z-index:  100;
 }
+
+
+/* ── GAME WORLD ──────────────────────────────────────────────────────────── */
 
 #gameWorld {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+  position: absolute;
+  width:    100%;
+  height:   100%;
+  z-index:  2;
 }
 
-.hidden {
-    opacity: 0 !important;
-    pointer-events: none;
-}
+/* hidden / visible are toggled by game.js on every image */
+.hidden  { opacity: 0 !important; pointer-events: none; }
+.visible { opacity: 1 !important; pointer-events: auto; }
 
-.visible {
-    opacity: 1 !important;
-    pointer-events: auto;
-}
+
+/* ── ROBERT ──────────────────────────────────────────────────────────────── */
 
 #robertImage {
-    position: absolute;
-    width: 260px;
-    left: 20%;
-    top: 55%;
-    transform: translate(-50%, -50%);
-    transition: left .8s, top .8s, opacity .4s;
+  position:   absolute;
+  width:       260px;
+  left:        20%;
+  top:         50%;
+  transform:   translate(-50%, -50%);   /* center the image on its own position */
+  transition:  left 0.7s ease, top 0.7s ease, opacity 0.3s ease, width 0.3s ease;
+  z-index:     3;
 }
+
+
+/* ── LIGHT SWITCH ────────────────────────────────────────────────────────── */
 
 #lightSwitchImage {
-    position: absolute;
-    width: 110px;
-    left: 32%;
-    top: 38%;
-    animation: switchFlick 1.2s infinite;
+  position:   absolute;
+  width:      110px;
+  left:       32%;
+  top:        36%;
+  animation:  switchFlick 1.2s ease-in-out infinite;
+  z-index:    3;
 }
+
+
+/* ── KEYPAD ──────────────────────────────────────────────────────────────── */
 
 #keypadImage {
-    position: absolute;
-    width: 220px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+  position:  absolute;
+  width:     220px;
+  left:      50%;
+  top:       50%;
+  transform: translate(-50%, -50%);
+  z-index:   3;
 }
 
+
+/* ── HANDS ───────────────────────────────────────────────────────────────── */
+
 #leftHandImage {
-    position: absolute;
-    left: 0;
-    bottom: 120px;
-    width: 220px;
+  position: absolute;
+  left:     0;
+  bottom:   110px;
+  width:    210px;
+  z-index:  4;    /* hands appear in front of Robert */
 }
 
 #rightHandImage {
-    position: absolute;
-    right: 0;
-    bottom: 120px;
-    width: 220px;
+  position: absolute;
+  right:    0;
+  bottom:   110px;
+  width:    210px;
+  z-index:  4;
 }
 
+
+/* ── FLAMING ARROW ───────────────────────────────────────────────────────── */
+
 #flamingArrowImage {
-    position: absolute;
-    width: 200px;
-    left: -220px;
-    top: 46%;
+  position: absolute;
+  width:    200px;
+  left:     -220px;   /* starts off-screen to the left */
+  top:      46%;
+  z-index:  3;
 }
 
 #flamingArrowImage.shooting {
-    animation: arrowFly .45s forwards linear;
+  animation: arrowFly 0.45s linear forwards;
 }
+
+
+/* ── SKULL & DOOR (pixel-art game elements) ──────────────────────────────── */
+
+#skullImage {
+  position:  absolute;
+  width:     120px;
+  left:      50%;
+  top:       14%;
+  transform: translateX(-50%);
+  z-index:   5;
+  image-rendering: pixelated;   /* keeps pixel art crisp instead of blurry */
+}
+
+#doorImage {
+  position:  absolute;
+  width:     144px;
+  left:      50%;
+  top:       30%;
+  transform: translateX(-50%);
+  z-index:   5;
+  image-rendering: pixelated;
+}
+
+
+/* ── BOTTOM UI PANEL ─────────────────────────────────────────────────────── */
 
 #uiPanel {
-    position: absolute;
-    bottom: 25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%;
-    background: rgba(0, 0, 0, .85);
-    border: 2px solid #ff3333;
-    padding: 20px;
+  position:   absolute;
+  bottom:     22px;
+  left:       50%;
+  transform:  translateX(-50%);
+  width:      88%;
+  background: rgba(0, 0, 0, 0.88);
+  border:     2px solid #ff3333;
+  padding:    18px 22px;
+  z-index:    10;   /* always on top */
 }
 
+#dialogueText {
+  font-size:   16px;
+  line-height: 1.55;
+  min-height:  40px;
+  margin-bottom: 14px;
+}
+
+#choiceButtons {
+  display: flex;
+  gap:     12px;
+  flex-wrap: wrap;   /* buttons wrap to a new line if there are many */
+}
+
+
+/* ── KEY BOXES (QTE) ─────────────────────────────────────────────────────── */
+
 #keyRow {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 15px;
+  display:       flex;
+  gap:           10px;
+  flex-wrap:     wrap;
+  margin-bottom: 14px;
 }
 
 .keyBox {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    font-weight: bold;
-    border: 2px solid #ff3333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #111;
-    transition: background 0.2s, border-color 0.2s;
+  width:       48px;
+  height:      48px;
+  font-size:   22px;
+  font-weight: bold;
+  border:      2px solid #ff3333;
+  display:     flex;
+  align-items:     center;
+  justify-content: center;
+  background:  #111;
+  transition:  background 0.15s, border-color 0.15s;
 }
 
 .keyBox.correct {
-    background: #28a745;
-    border-color: #28a745;
-    color: white;
+  background:   #1a6e2e;
+  border-color: #28a745;
+  color:        white;
 }
 
+
+/* ── TIMER BAR ───────────────────────────────────────────────────────────── */
+
 #timerBar {
-    height: 8px;
-    background: #333;
-    margin-top: 10px;
+  height:       7px;
+  background:   #2a2a2a;
+  margin-top:   12px;
+  border:       1px solid #444;
 }
 
 #timerFill {
-    height: 100%;
-    width: 100%;
-    background: red;
+  height:     100%;
+  width:      100%;
+  background: #ff3333;
+  transition: width 0.05s linear;
 }
 
-@keyframes jitter{
-    0%, 100% { transform: translateX(0); }
-    10%, 50%, 90% { transform: translateX(-1px); } /* Move left */
-    30%, 70% { transform: translateX(1px); }      /* Move right */
+
+/* ── ANIMATIONS ──────────────────────────────────────────────────────────── */
+
+/* Robert shaking rapidly during the game-over close-up */
+@keyframes jitter {
+  0%,  100% { transform: translate(-50%, -50%) translateX(0);    }
+  25%        { transform: translate(-50%, -50%) translateX(-3px); }
+  75%        { transform: translate(-50%, -50%) translateX(3px);  }
 }
+
+/* Light switch bobbing up and down */
 @keyframes switchFlick {
-    0% { transform: translateY(0) }
-    50% { transform: translateY(-6px) }
-    100% { transform: translateY(0) }
+  0%, 100% { transform: translateY(0);  }
+  50%       { transform: translateY(-6px); }
 }
 
+/* Arrow flying across the screen left to right */
 @keyframes arrowFly {
-    from { left: -220px }
-    to { left: 110vw }
+  from { left: -220px;  }
+  to   { left: 110vw;   }
 }

@@ -1,38 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>The Cave</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Cave</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body id="gameBody">
-    <button id="menuButton">Menu</button>
 
-    <div id="gameWorld">
-        <audio id="bgMusic" src="Music/BGM.mp3" loop></audio>
-        <audio id="scareSound" src="Music/Loud Scream Sound Effect 4.mp3"></audio>
-        <img id="robertImage" src="Images/Robert Background Removed Default.png" class="hidden">
-        <img id="lightSwitchImage" src="Images/lightswitch(flippable).png" class="hidden">
-        <img id="keypadImage" src="Images/Keypad.png" class="hidden">
-        <img id="leftHandImage" src="Images/left hand.png">
-        <img id="rightHandImage" src="Images/right hand.png">
-        <img id="flamingArrowImage" src="Images/Flaming arrow.png" class="hidden">
+  <!-- Top-right menu button -->
+  <button id="menuButton">Menu</button>
+
+  <!-- The visual stage where all game images live -->
+  <div id="gameWorld">
+
+    <!-- Audio (invisible) -->
+    <audio id="bgMusic"    src="Music/BGM.mp3" loop></audio>
+    <audio id="scareSound" src="Music/Loud Scream Sound Effect 4.mp3"></audio>
+
+    <!-- Game images. All start hidden; game.js shows them when needed. -->
+    <!-- IMPORTANT: these filenames must exactly match the files in your Images/ folder. -->
+    <img id="robertImage"     src="Images/Robert_Background_Removed_Default.png" class="hidden">
+    <img id="lightSwitchImage" src="Images/lightswitch_flippable_.png"            class="hidden">
+    <img id="keypadImage"     src="Images/Keypad.png"                             class="hidden">
+    <img id="flamingArrowImage" src="Images/Flaming_arrow.png"                   class="hidden">
+    <img id="skullImage"      src="Images/skull.png"                              class="hidden">
+    <img id="doorImage"       src="Images/door.png"                               class="hidden">
+
+    <!-- Hands are visible by default (the player's POV arms at the bottom) -->
+    <img id="leftHandImage"  src="Images/left_hand.png">
+    <img id="rightHandImage" src="Images/right_hand.png">
+
+  </div>
+
+  <!-- The bottom UI panel: story text, choice buttons, key prompts, timer -->
+  <div id="uiPanel">
+    <div id="keyRow"></div>
+    <p id="dialogueText">Loading...</p>
+    <div id="choiceButtons"></div>
+    <div id="timerBar" class="hidden">
+      <div id="timerFill"></div>
     </div>
+  </div>
 
-    <div id="uiPanel">
-        <div id="keyRow"></div>
-        <p id="dialogueText">Loading...</p>
-        <div id="choiceButtons"></div>
-        <div id="timerBar" class="hidden">
-            <div id="timerFill"></div>
-        </div>
-    </div>
-
-
-
-    <script src="game.js"></script>
+  <script src="game.js"></script>
 </body>
 
 </html>

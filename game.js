@@ -1,51 +1,66 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-  // =========================
-  // BUTTONS
-  // =========================
-  var startButton = document.getElementById("startButton");
-  var menuButton = document.getElementById("menuButton");
+  // ── PAGE ELEMENTS ──────────────────────────────────────────────────────
+  // We grab every HTML element the game needs to change.
 
-  // =========================
-  // GAME IMAGES
-  // =========================
-  var robert = document.getElementById("robertImage");
-  var lightSwitch = document.getElementById("lightSwitchImage");
-  var keypad = document.getElementById("keypadImage");
-  var leftHand = document.getElementById("leftHandImage");
-  var rightHand = document.getElementById("rightHandImage");
-  var arrow = document.getElementById("flamingArrowImage");
+  const img = {
+    robert: document.getElementById("robertImage"),
+    switch: document.getElementById("lightSwitchImage"),
+    keypad: document.getElementById("keypadImage"),
+    arrow:  document.getElementById("flamingArrowImage"),
+    skull:  document.getElementById("skullImage"),
+    door:   document.getElementById("doorImage"),
+    lHand:  document.getElementById("leftHandImage"),
+    rHand:  document.getElementById("rightHandImage"),
+  };
 
-  // =========================
-  // UI ELEMENTS
-  // =========================
-  var textBox = document.getElementById("dialogueText");
-  var buttonsBox = document.getElementById("choiceButtons");
-  var keyRow = document.getElementById("keyRow");
-  var timerBar = document.getElementById("timerBar");
-  var timerFill = document.getElementById("timerFill");
+  const ui = {
+    text:    document.getElementById("dialogueText"),
+    buttons: document.getElementById("choiceButtons"),
+    keys:    document.getElementById("keyRow"),
+    timer:   document.getElementById("timerBar"),
+    fill:    document.getElementById("timerFill"),
+  };
 
-  // =========================
-  // AUDIO
-  // =========================
-  var bgMusic = document.getElementById("bgMusic");
-  var scream = document.getElementById("scareSound");
+  const audio = {
+    music:  document.getElementById("bgMusic"),
+    scream: document.getElementById("scareSound"),
+  };
 
-  // =========================
-  // GAME STATE
-  // =========================
-  var currentRoom = null;
+  // ── GAME STATE ──────────────────────────────────────────────────────────
+  // These variables track what's happening at this exact moment.
 
-  var qteIndex = 0;
-  var qteActive = false;
+  let currentRoom  = null;  // the room object currently on screen
+  let qteIndex     = 0;     // which key in the sequence the player is on
+  let qteActive    = false; // true while the player must press a key sequence
+  let timerTimeout = null;  // the countdown until game-over
+  let timerTick    = null;  // the visual timer bar updater
 
-  var timer = null;
-  var timerLoop = null;
+  // ── ROOMS ───────────────────────────────────────────────────────────────
+  // Each room is a plain object. The game reads its properties and updates
+  // the screen. Add a new room by copying an existing one and changing the id.
+  //
+  //  id           — unique number for this room
+  //  text         — the sentence shown in the bottom panel
+  //  options      — list of clickable buttons; each has text and a goTo id
+  //  requiredKeys — if present, a QTE (quick-time event) instead of buttons
+  //  qteSuccessGoTo — room to go to when the QTE is completed
+  //  timeLimit    — milliseconds before the game forces timeoutGoTo
+  //  timeoutGoTo  — room to go to when time runs out
+  //  isBlackout   — makes the background black
+  //  bloodFlash   — makes the background red (used in game over)
+  //  showSwitch   — shows the light-switch image
+  //  showKeypad   — shows the keypad image
+  //  showRobert   — shows Teacher Robert
+  //  robertCloseup— makes Robert fill the screen (horror effect)
+  //  robertPosition — "left", "center", "right", or "abyss"
+  //  shootArrow   — plays the arrow-fly animation
+  //  showSkull    — shows the pixel-art skull (game over rooms)
+  //  showDoor     — shows the pixel-art door (victory rooms)
+  //  hideHands    — hides the player's first-person hands
+  //  playScream   — plays the scare sound
 
-  // =========================
-  // ROOMS (GAME LEVELS)
-  // =========================
-  var ROOMS = [
+  const ROOMS = [
 
     {
       id: 1,
@@ -60,7 +75,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 2,
       isBlackout: true,
       showSwitch: true,
-      text: "You look around the corner. A light switch on the rock wall was movingh all by itself.",
+      text: "You look around the corner. A light switch on the rock wall is moving all by itself.",
       options: [
         { text: "Reach out and flip the switch.", goTo: 3 }
       ]
@@ -73,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
       timeLimit: 2500,
       timeoutGoTo: 99,
       options: [
-        { text: "DUCK INSIDE THE CORNER OF THE CAVE", goTo: 4 }
+        { text: "DUCK INTO THE CORNER OF THE CAVE", goTo: 4 }
       ]
     },
 
@@ -81,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 4,
       showRobert: true,
       robertPosition: "right",
-      text: "Teacher Robert RUNS TOWARDS YOU! HE GRABS YOUR ARM! Press the key combo to break free!",
+      text: "Teacher Robert CHARGES TOWARDS YOU! Press the key combo to break free!",
       timeLimit: 4000,
       timeoutGoTo: 99,
       requiredKeys: ["W", "S", "A", "D", "F", "G", "P", "A"],
@@ -116,7 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
       robertPosition: "left",
       text: "DIRECT HIT. He staggers back into the abyss.",
       options: [
-        { text: "Sprint out.", goTo: 8 }
+        { text: "Sprint for the exit.", goTo: 8 }
       ]
     },
 
@@ -124,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 8,
       showRobert: true,
       robertPosition: "center",
-      text: "Robert is FURIOUS.",
+      text: "Robert blocks the path, FURIOUS.",
       options: [
         { text: "Punch him.", goTo: 9 },
         { text: "Reason with him.", goTo: 11 }
@@ -135,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 9,
       showRobert: true,
       robertPosition: "right",
-      text: "You punch him and run.",
+      text: "You punch him square in the jaw and bolt.",
       options: [
         { text: "Keep running.", goTo: 12 }
       ]
@@ -145,16 +160,16 @@ document.addEventListener("DOMContentLoaded", function () {
       id: 10,
       showRobert: true,
       robertPosition: "center",
-      text: "You hide under the desk. He is inches away.",
+      text: "You crawl under the desk. His footsteps stop. He is inches away.",
       options: [
-        { text: "Hold breath.", goTo: 99 }
+        { text: "Hold your breath.", goTo: 99 }
       ]
     },
 
     {
       id: 11,
       isBlackout: true,
-      text: "He smashes you into the wall. Everything goes dark.",
+      text: "He listens. Then he smashes you into the wall. Everything goes dark.",
       options: [
         { text: "Main Menu", goTo: -1 }
       ]
@@ -172,22 +187,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     {
       id: 99,
-      // set width via property name instead of executing code here
-      robertCloseup: true,
-      robertPosition: "center",
-      isBlackout: false,
       showRobert: true,
+      robertCloseup: true,
       bloodFlash: true,
+      hideHands: true,
       playScream: true,
+      showSkull: true,
       text: "GAME OVER",
       options: [
+        { text: "Try Again", goTo: 1 },
         { text: "Main Menu", goTo: -1 }
       ]
     },
 
     {
       id: 100,
-      text: "You escaped.",
+      showDoor: true,
+      text: "You escaped into the sunlight. You survived.",
       options: [
         { text: "Main Menu", goTo: -1 }
       ]
@@ -195,254 +211,192 @@ document.addEventListener("DOMContentLoaded", function () {
 
     {
       id: 101,
-      text: "You escaped through the cage.",
+      showDoor: true,
+      text: "The cage swings open. You sprint through and never look back.",
       options: [
         { text: "Main Menu", goTo: -1 }
       ]
     }
+
   ];
 
-  // =========================
-  // NAV BUTTONS
-  // =========================
-  if (startButton) {
-    startButton.onclick = function () {
-      window.location.href = "inGame.html";
-    };
-  }
+  // ── NAV BUTTONS ─────────────────────────────────────────────────────────
+  // These buttons exist only on the relevant page; the checks prevent errors
+  // when a button is missing (e.g., "startButton" only exists on index.html).
 
-  if (menuButton) {
-    menuButton.onclick = function () {
-      window.location.href = "index.html";
-    };
-  }
+  const startBtn = document.getElementById("startButton");
+  const menuBtn  = document.getElementById("menuButton");
 
-  // =========================
-  // MUSIC START
-  // =========================
-    bgMusic.play();
+  if (startBtn) startBtn.onclick = () => { window.location.href = "inGame.html"; };
+  if (menuBtn)  menuBtn.onclick  = () => { window.location.href = "index.html"; };
 
-  // =========================
-  // KEY INPUT (QTE SYSTEM)
-  // =========================
-  window.addEventListener("keydown", function (event) {
+  // ── MUSIC ────────────────────────────────────────────────────────────────
+  // .catch() silences the browser error that fires if autoplay is blocked.
 
+  if (audio.music) audio.music.play().catch(() => {});
+
+  // ── KEYBOARD INPUT ───────────────────────────────────────────────────────
+  // Fires every time the player presses a key.
+  // If a QTE is active, we check whether the right key was pressed.
+
+  window.addEventListener("keydown", function (e) {
     if (!qteActive) return;
 
-    var key = event.key.toUpperCase();
-
-    var needed = currentRoom.requiredKeys;
+    const key    = e.key.toUpperCase();
+    const needed = currentRoom.requiredKeys;
 
     if (key === needed[qteIndex]) {
-
       qteIndex++;
-
-      showKeyBoxes(needed, qteIndex);
-
-      if (qteIndex >= needed.length) {
+      renderKeyBoxes(needed, qteIndex);
+      if (qteIndex >= needed.length) {  // all keys entered correctly
         stopTimers();
-        loadRoom(currentRoom.qteSuccessGoTo);
+        goToRoom(currentRoom.qteSuccessGoTo);
       }
-
     } else {
       stopTimers();
-      loadRoom(99);
+      goToRoom(99);  // wrong key → instant game over
     }
   });
 
-  // =========================
-  // MAIN GAME ENGINE
-  // =========================
+  // ── ROOM LOADER ──────────────────────────────────────────────────────────
+  // The heart of the game. Call goToRoom(someId) to switch scenes.
 
-
-
-
-
-  // if(!robert){
-  //   return;
-  // }
-  // if(room.id === 99) {
-  //   robert.style.width = "900px";
-  // }
-  
-  function moveRobert(position) {
-
-    if (!robert) return;
-
-    if (position === "left") {
-      robert.style.left = "20%";
-      robert.style.top = "55%";
-    }
-
-    if (position === "center") {
-      robert.style.left = "50%";
-      robert.style.top = "50%";
-    }
-
-    if (position === "right") {
-      robert.style.left = "75%";
-      robert.style.top = "55%";
-    }
-
-    if (position === "abyss") {
-      robert.style.left = "10%";
-      robert.style.top = "60%";
-    }
-  }
-
-  function loadRoom(id) {
-
-    if (id === -1) {
-      window.location.href = "index.html";
-      return;
-    }
+  function goToRoom(id) {
+    if (id === -1) { window.location.href = "index.html"; return; }
 
     stopTimers();
-
     qteActive = false;
-    qteIndex = 0;
+    qteIndex  = 0;
 
-    var room = null;
-
-    for (var i = 0; i < ROOMS.length; i++) {
-      if (ROOMS[i].id === id) {
-        room = ROOMS[i];
-        break;
-      }
-    }
-
+    const room = ROOMS.find(r => r.id === id);
     if (!room) return;
-
     currentRoom = room;
-    if (room.robertPosition) {
-      moveRobert(room.robertPosition);
-    }
-    
 
-    if(room.robertCloseup){
-    robert.style.width = "1200px";
-    robert.style.top = "120%";
-    robert.style.animation = "jitter 200s infinite";
-    }
+    setBackground(room);
+    setImages(room);
+    ui.text.innerText = room.text;
+    setControls(room);
 
-    // BACKGROUND EFFECTS
+    if (room.timeLimit) startTimer(room);
+    if (room.playScream && audio.scream) audio.scream.play().catch(() => {});
+  }
+
+  // ── HELPER FUNCTIONS ─────────────────────────────────────────────────────
+  // Each function does one small job so goToRoom() stays readable.
+
+  function setBackground(room) {
     document.body.className = "";
+    if (room.isBlackout)                   document.body.classList.add("blackout");
+    if (room.bloodFlash)                   document.body.classList.add("bloodFlash");
+    if (room.showSwitch || room.showKeypad) document.body.classList.add("darkScene");
+  }
 
-    if (room.isBlackout) {
-      document.body.classList.add("blackout");
-    }
+  function setImages(room) {
+    // Hide everything first, then selectively show what this room needs.
+    hide(img.robert);
+    hide(img.switch);
+    hide(img.keypad);
+    hide(img.skull);
+    hide(img.door);
 
-    if (room.bloodFlash) {
-      document.body.classList.add("bloodFlash");
-    }
-
-    if (room.showSwitch || room.showKeypad) {
-      document.body.classList.add("darkScene");
-    }
-
-    // IMAGE TOGGLE
-    set(robert, room.showRobert);
-    set(lightSwitch, room.showSwitch);
-    set(keypad, room.showKeypad);
-
-    arrow.classList.remove("shooting");
-    arrow.classList.remove("hidden");
-
-    if (room.shootArrow) {
-      arrow.classList.add("shooting");
-    } else {
-      arrow.classList.add("hidden");
-    }
-
-    // TEXT
-    textBox.innerText = room.text;
-
-    // RESET UI
-    buttonsBox.innerHTML = "";
-    keyRow.innerHTML = "";
-    timerBar.className = "hidden";
-
-    // QTE OR OPTIONS
-    if (room.requiredKeys) {
-
-      qteActive = true;
-      showKeyBoxes(room.requiredKeys, qteIndex);
-
-    } else {
-
-      for (var i = 0; i < room.options.length; i++) {
-
-        var btn = document.createElement("button");
-        btn.innerText = room.options[i].text;
-
-        btn.onclick = (function (goTo) {
-          return function () {
-            loadRoom(goTo);
-          };
-        })(room.options[i].goTo);
-
-        buttonsBox.appendChild(btn);
+    if (room.showRobert || room.robertCloseup) {
+      show(img.robert);
+      if (room.robertCloseup) {
+        img.robert.style.width     = "115%";
+        img.robert.style.left      = "50%";
+        img.robert.style.top       = "8%";
+        img.robert.style.animation = "jitter 0.25s infinite";
+      } else {
+        img.robert.style.width     = "260px";
+        img.robert.style.animation = "";
+        positionRobert(room.robertPosition);
       }
     }
 
-    // TIMER
-    if (room.timeLimit) {
+    if (room.showSwitch) show(img.switch);
+    if (room.showKeypad) show(img.keypad);
+    if (room.showSkull)  show(img.skull);
+    if (room.showDoor)   show(img.door);
 
-      timerBar.className = "";
+    // The arrow either shoots across the screen or stays hidden.
+    img.arrow.className = room.shootArrow ? "shooting" : "hidden";
 
-      var timeLeft = room.timeLimit;
-
-      timerFill.style.width = "100%";
-
-      timerLoop = setInterval(function () {
-
-        timeLeft -= 50;
-
-        var percent = (timeLeft / room.timeLimit) * 100;
-        if (percent < 0) percent = 0;
-
-        timerFill.style.width = percent + "%";
-
-      }, 50);
-
-      timer = setTimeout(function () {
-        loadRoom(room.timeoutGoTo);
-      }, room.timeLimit);
+    // Hands represent the player's first-person view;
+    // hide them in full-screen horror moments.
+    if (room.hideHands) {
+      hide(img.lHand);
+      hide(img.rHand);
+    } else {
+      show(img.lHand);
+      show(img.rHand);
     }
   }
 
-  function showKeyBoxes(keys, currentIndex) {
+  function positionRobert(position) {
+    const spots = {
+      left:   { left: "20%", top: "55%" },
+      center: { left: "50%", top: "50%" },
+      right:  { left: "75%", top: "55%" },
+      abyss:  { left: "12%", top: "65%" },
+    };
+    const spot = spots[position] || spots.center;
+    img.robert.style.left = spot.left;
+    img.robert.style.top  = spot.top;
+  }
 
-    keyRow.innerHTML = "";
+  function setControls(room) {
+    ui.buttons.innerHTML = "";
+    ui.keys.innerHTML    = "";
+    ui.timer.className   = "hidden";
 
-    for (var i = 0; i < keys.length; i++) {
-      var box = document.createElement("div");
-      box.className = "keyBox";
-
-      // If they have successfully typed past this key's index, turn it green
-      if (i < currentIndex) {
-        box.classList.add("correct");
-      }
-
-      box.innerText = keys[i];
-      keyRow.appendChild(box);
+    if (room.requiredKeys) {
+      qteActive = true;
+      renderKeyBoxes(room.requiredKeys, 0);
+    } else {
+      room.options.forEach(opt => {
+        const btn     = document.createElement("button");
+        btn.innerText = opt.text;
+        btn.onclick   = () => goToRoom(opt.goTo);
+        ui.buttons.appendChild(btn);
+      });
     }
+  }
+
+  function startTimer(room) {
+    let timeLeft        = room.timeLimit;
+    ui.timer.className  = "";
+    ui.fill.style.width = "100%";
+
+    timerTick = setInterval(() => {
+      timeLeft -= 50;
+      const pct = Math.max(0, (timeLeft / room.timeLimit) * 100);
+      ui.fill.style.width = pct + "%";
+    }, 50);
+
+    timerTimeout = setTimeout(() => goToRoom(room.timeoutGoTo), room.timeLimit);
   }
 
   function stopTimers() {
-    clearTimeout(timer);
-    clearInterval(timerLoop);
+    clearTimeout(timerTimeout);
+    clearInterval(timerTick);
   }
 
-  function set(el, show) {
-    if (!el) return;
-    // We now use classes to toggle opacity via CSS
-    el.className = show ? "visible" : "hidden";
+  function renderKeyBoxes(keys, currentIndex) {
+    ui.keys.innerHTML = "";
+    keys.forEach((key, i) => {
+      const box     = document.createElement("div");
+      box.className = i < currentIndex ? "keyBox correct" : "keyBox";
+      box.innerText = key;
+      ui.keys.appendChild(box);
+    });
   }
 
-  // START GAME
-  if (textBox) {
-    loadRoom(1);
-  }
+  function show(el) { if (el) el.className = "visible"; }
+  function hide(el) { if (el) el.className = "hidden";  }
+
+  // ── START ────────────────────────────────────────────────────────────────
+  // Only kick off the game if the dialogue box exists (we're on inGame.html).
+
+  if (ui.text) goToRoom(1);
 
 });
