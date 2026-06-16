@@ -50,17 +50,25 @@ body {
   position:   relative;
 }
 
-/* Don't show the dark edge when it would clash with a solid background */
-#gameBody.blackout::before,
-#gameBody.bloodFlash::before,
-#gameBody.darkScene::before {
-  display: none;
-}
-
 /* Override backgrounds for special room states */
 #gameBody.blackout   { background: black; }
 #gameBody.bloodFlash { background: #bb0000; }
-#gameBody.darkScene  { background: #0a0a0a; }
+#gameBody.darkScene  {
+  background:
+    linear-gradient(180deg, rgba(3, 5, 8, 0.85), rgba(7, 9, 12, 0.96)),
+    url("Images/Cave.png") center / cover no-repeat;
+}
+#gameBody.rushScene {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.98)),
+    url("Images/Cave.png") center / cover no-repeat;
+  animation: rushZoom 1.6s ease-in forwards;
+}
+#gameBody.doorScene {
+  background:
+    linear-gradient(180deg, rgba(3, 4, 6, 0.55), rgba(0, 0, 0, 0.92)),
+    url("Images/Cave.png") center / cover no-repeat;
+}
 
 
 /* ── BUTTONS (shared style) ──────────────────────────────────────────────── */
@@ -110,9 +118,20 @@ button:hover {
   width:       260px;
   left:        20%;
   top:         50%;
-  transform:   translate(-50%, -50%);   /* center the image on its own position */
-  transition:  left 0.7s ease, top 0.7s ease, opacity 0.3s ease, width 0.3s ease;
+  transform:   translate(-50%, -50%);
+  transition:  left 0.35s ease, top 0.35s ease, opacity 0.3s ease, width 0.35s ease;
   z-index:     3;
+  filter:      drop-shadow(0 0 18px rgba(0, 0, 0, 0.35));
+}
+
+#robertImage.robert-left   { left: 20%; top: 55%; }
+#robertImage.robert-center { left: 50%; top: 50%; }
+#robertImage.robert-right  { left: 78%; top: 55%; }
+#robertImage.robert-closeup {
+  width: 320px;
+  left: 50%;
+  top: 38%;
+  animation: robertPulse 1.8s ease-in-out infinite;
 }
 
 
@@ -123,8 +142,9 @@ button:hover {
   width:      110px;
   left:       32%;
   top:        36%;
-  animation:  switchFlick 0.2 linear infinite;
+  animation:  switchFlick 1.4s ease-in-out infinite;
   z-index:    3;
+  transform-origin: center;
 }
 
 
@@ -170,7 +190,7 @@ button:hover {
 }
 
 #flamingArrowImage.shooting {
-  animation: arrowFly 0.45s linear forwards;
+  animation: arrowFly 0.55s ease-in forwards;
 }
 
 
@@ -224,6 +244,30 @@ button:hover {
   flex-wrap: wrap;   /* buttons wrap to a new line if there are many */
 }
 
+#typingArea {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#typingInput {
+  flex: 1;
+  min-width: 180px;
+  background: #050505;
+  border: 1px solid #ff3333;
+  color: white;
+  padding: 8px 10px;
+  font-family: "Courier New", monospace;
+}
+
+#typingButton {
+  background: #1a1a1a;
+  border: 1px solid #ff3333;
+  color: white;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: "Courier New", monospace;
+}
 
 /* ── KEY BOXES (QTE) ─────────────────────────────────────────────────────── */
 
@@ -282,12 +326,19 @@ button:hover {
 
 /* Light switch flicking up and down */
 @keyframes switchFlick {
-  0% {
-    transform: rotateX(0deg);
-  }
-  100% {
-    transform: rotateX(360deg);
-  }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30%      { transform: translateY(-2px) rotate(-2deg); }
+  70%      { transform: translateY(2px) rotate(2deg); }
+}
+
+@keyframes robertPulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.02); }
+}
+
+@keyframes rushZoom {
+  from { background-size: 110%; filter: brightness(1); }
+  to   { background-size: 180%; filter: brightness(0.04); }
 }
 
 /* Arrow flying across the screen left to right */

@@ -1,424 +1,82 @@
-# Teacher Robert — Complete Code Guide
+# Teacher Robert — Beginner Guide
 
-This document explains the game's code from top to bottom. No experience required.
+This version is simpler on purpose:
+- fewer confusing scenes
+- more basic buttons and typing
+- one clear goal: survive, escape, and type the code
 
----
+## What each file does
 
-## File Structure
+- index.html — the start screen
+- inGame.html — the game screen with the story, buttons, and typing box
+- game.js — the simple room system that moves the story forward
+- style.css — the look of the game: dark cave, glowing text, and simple animations
 
-```
-your-game-folder/
-│
-├── index.html       ← the main menu screen
-├── inGame.html      ← the actual game screen
-├── style.css        ← controls colours, sizes, and positions
-├── game.js          ← controls all the game logic
-│
-├── Images/          ← all image files go here
-│   ├── Robert_Background_Removed_Default.png
-│   ├── Flaming_arrow.png
-│   ├── Keypad.png
-│   ├── left_hand.png
-│   ├── right_hand.png
-│   ├── lightswitch_flippable_.png
-│   ├── Cave.png
-│   ├── Home_Screen.png
-│   ├── skull.png
-│   └── door.png
-│
-└── Music/           ← audio files go here
-    ├── BGM.mp3
-    └── Loud Scream Sound Effect 4.mp3
-```
+## How the game works
 
----
+1. The page opens on room 1.
+2. The code looks at the current room in the ROOMS list.
+3. It shows the correct text, buttons, and images.
+4. When the player clicks or types, the code moves to the next room.
 
-## How the Game Works (The Big Picture)
+That is the whole game loop.
 
-The browser loads `index.html` first. That page has one button. Clicking it sends the player to `inGame.html`. That page loads `game.js`, which immediately sets up the game and calls `goToRoom(1)` — the starting room.
+## The 4 main parts of the code
 
-From there, the game works like a choose-your-own-adventure book. Each room is a plain JavaScript object stored in an array called `ROOMS`. The `goToRoom` function reads a room's data and updates the screen to match. The player makes choices, and each choice calls `goToRoom` with a new id.
+### 1. ROOMS
+This is the story list. Every room is one small scene.
 
----
-
-## index.html — Every Line
-
-```html
-<!DOCTYPE html>
-```
-This tells the browser: "this file is written in HTML5". Every HTML file must start with this. Without it, old browsers fall back to quirky legacy display modes.
-
-```html
-<html lang="en">
-```
-The root tag that wraps everything. `lang="en"` tells assistive tools and search engines the page is in English.
-
-```html
-<head>
-```
-The head section holds information *about* the page — it does not display on screen.
-
-```html
-<meta charset="UTF-8">
-```
-`<meta>` carries metadata. `charset="UTF-8"` means the browser will correctly display every character — letters, symbols, accented characters.
-
-```html
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-```
-Tells phones and tablets to match their screen width exactly, at normal zoom. Without this, mobile browsers shrink the page as if it were a desktop site.
-
-```html
-<title>Teacher Robert Horror Game</title>
-```
-Sets the text shown in the browser tab.
-
-```html
-<link rel="stylesheet" href="style.css">
-```
-Loads the CSS file. `rel="stylesheet"` says what kind of file it is. `href="style.css"` says where to find it.
-
-```html
-</head>
-<body id="mainMenuBody">
-```
-The body tag holds everything that appears on screen. `id="mainMenuBody"` gives this specific body a name, so CSS can give the menu its own cave background without affecting the game page.
-
-```html
-<div id="menuContainer">
-```
-`<div>` is a generic box. It groups related elements together. This one holds the title, subtitle, and start button.
-
-```html
-<h1 id="gameTitle">TEACHER ROBERT</h1>
-```
-`<h1>` is a heading — the largest heading by default. The CSS overrides its size to 72px and colours it red.
-
-```html
-<p id="gameSubtitle">Can you survive him?</p>
-```
-`<p>` is a paragraph tag. Used here for the short tagline under the title.
-
-```html
-<button id="startButton">Start Game</button>
-```
-A clickable button. `game.js` grabs this by its id and makes it navigate to `inGame.html` when clicked.
-
-```html
-<script src="game.js"></script>
-```
-Loads the JavaScript file. Placed at the bottom of body so the HTML elements above it are already loaded and ready when the script runs.
-
----
-
-## inGame.html — Every Line
-
-Most of the boilerplate is identical to `index.html`, so this section only covers the unique parts.
-
-```html
-<body id="gameBody">
-```
-The game body has id `gameBody`. CSS uses this to give it the cave background and apply special effects like `bloodFlash`.
-
-```html
-<button id="menuButton">Menu</button>
-```
-The top-right button. `game.js` makes it go back to `index.html`.
-
-```html
-<div id="gameWorld">
-```
-The full-screen container for all game images. It fills 100% of the screen width and height.
-
-```html
-<audio id="bgMusic" src="Music/BGM.mp3" loop></audio>
-```
-An invisible audio element. `src` points to the music file. `loop` makes it restart automatically when it ends. `game.js` plays it with JavaScript.
-
-```html
-<audio id="scareSound" src="Music/Loud Scream Sound Effect 4.mp3"></audio>
-```
-The jump-scare sound. It plays in room 99 (game over). It does *not* loop.
-
-```html
-<img id="robertImage" src="Images/Robert_Background_Removed_Default.png" class="hidden">
-```
-`<img>` displays an image. `src` is the file path. `class="hidden"` applies the CSS `.hidden` rule, which sets opacity to 0 — the image exists but you can't see it. `game.js` swaps the class to `visible` when a room needs it.
-
-The pattern repeats for `lightSwitchImage`, `keypadImage`, `flamingArrowImage`, `skullImage`, and `doorImage`. All start hidden.
-
-```html
-<img id="leftHandImage"  src="Images/left_hand.png">
-<img id="rightHandImage" src="Images/right_hand.png">
-```
-The player's hands. These start *without* a `hidden` class, so they're visible from the start. They only hide in room 99 (game over).
-
-```html
-<div id="uiPanel">
-```
-The dark panel at the bottom that shows story text, buttons, and the timer.
-
-```html
-<div id="keyRow"></div>
-```
-Empty by default. `game.js` fills it with key-box squares when a QTE starts.
-
-```html
-<p id="dialogueText">Loading...</p>
-```
-The story text. "Loading..." is replaced immediately when the game starts.
-
-```html
-<div id="choiceButtons"></div>
-```
-Empty by default. `game.js` creates `<button>` elements and puts them here.
-
-```html
-<div id="timerBar" class="hidden">
-  <div id="timerFill"></div>
-</div>
-```
-The countdown bar. The outer div is the grey track. The inner div is the red fill, whose width shrinks from 100% to 0 as time runs out.
-
----
-
-## style.css — Every Rule
-
-### `*` (the global reset)
-
-```css
-* {
-  margin:     0;
-  padding:    0;
-  box-sizing: border-box;
-}
-```
-The `*` selector targets every element on the page. Browsers add default spacing to many elements — this wipes all of that out. `box-sizing: border-box` changes how width and height are calculated: borders and padding are *included* in the stated size, not added on top.
-
-### `body`
-
-```css
-body {
-  font-family: "Courier New", monospace;
-  color:       white;
-  overflow:    hidden;
-  height:      100vh;
-}
-```
-`font-family` sets the default font. `"Courier New"` is a monospaced typewriter font; `monospace` is the fallback if Courier New is not installed. `overflow: hidden` prevents scroll bars. `100vh` means 100% of the viewport height (the visible screen area).
-
-### `#mainMenuBody`
-
-```css
-#mainMenuBody {
-  background: url("Images/Home_Screen.png") center / cover no-repeat;
-  display:    flex;
-  justify-content: center;
-  align-items:     center;
-}
-```
-`url(...)` sets a background image. `center` positions it in the middle. `cover` scales it to fill the whole screen. `no-repeat` prevents it from tiling. `display: flex` turns the body into a flexbox container, which lets `justify-content: center` and `align-items: center` perfectly centre its child (the menu box) both horizontally and vertically.
-
-### `#gameTitle`
-
-```css
-#gameTitle {
-  font-size:   72px;
-  color:       #ff3333;
-  text-shadow: 0 0 24px red, 0 0 6px #ff000088;
-}
-```
-`text-shadow` takes four values: horizontal offset, vertical offset, blur radius, colour. Both shadows are centred (0 horizontal, 0 vertical), with different blur sizes — the larger one gives the big glow, the smaller one sharpens the core.
-
-### `#gameBody`
-
-```css
-#gameBody {
-  background: url("Images/Cave.png") center / 115% no-repeat;
-  position:   relative;
-}
-```
-`115%` makes the cave image slightly wider than the screen, giving it a zoomed-in, tight feeling. `position: relative` is required so that child elements with `position: absolute` are placed relative to this div, not to the entire page.
-
-### `#gameBody::before`
-
-```css
-#gameBody::before {
-  content:    "";
-  position:   absolute;
-  left:       0;
-  top:        0;
-  width:      22%;
-  height:     100%;
-  background: radial-gradient(circle at left, black 20%, transparent 80%);
-}
-```
-`::before` is a *pseudo-element* — it adds an invisible element as the first child of `#gameBody` without touching the HTML. `content: ""` is required for pseudo-elements to appear. `radial-gradient` draws a circular dark shadow that fades from solid black on the left edge to transparent, giving the cave scene a dark corner atmosphere.
-
-### Special body states
-
-```css
-#gameBody.blackout   { background: black; }
-#gameBody.bloodFlash { background: #bb0000; }
-#gameBody.darkScene  { background: #0a0a0a; }
-```
-When `game.js` adds the class `blackout`, `bloodFlash`, or `darkScene` to the body, these rules kick in and override the cave background. The selector `#gameBody.blackout` means "the element with id gameBody that *also* has the class blackout."
-
-### `.hidden` and `.visible`
-
-```css
-.hidden  { opacity: 0 !important; pointer-events: none; }
-.visible { opacity: 1 !important; pointer-events: auto; }
-```
-`opacity: 0` makes something invisible but it still takes up space and can be transitioned. `!important` forces this rule to win over any other opacity setting. `pointer-events: none` means the mouse ignores the hidden element completely.
-
-### `#robertImage`
-
-```css
-#robertImage {
-  position:   absolute;
-  width:       260px;
-  left:        20%;
-  top:         50%;
-  transform:   translate(-50%, -50%);
-  transition:  left 0.7s ease, top 0.7s ease, opacity 0.3s ease, width 0.3s ease;
-}
-```
-`position: absolute` places this image relative to `#gameWorld`. `transform: translate(-50%, -50%)` shifts the image left by half its own width and up by half its own height — this means `left` and `top` point to the *centre* of the image, not the top-left corner. `transition` makes certain properties animate smoothly when `game.js` changes them.
-
-### `image-rendering: pixelated`
-
-```css
-#skullImage, #doorImage {
-  image-rendering: pixelated;
-}
-```
-When the browser scales up a small image it normally blurs the edges. `pixelated` keeps each pixel sharp, which is essential for pixel-art assets.
-
-### `@keyframes jitter`
-
-```css
-@keyframes jitter {
-  0%,  100% { transform: translate(-50%, -50%) translateX(0);    }
-  25%        { transform: translate(-50%, -50%) translateX(-3px); }
-  75%        { transform: translate(-50%, -50%) translateX(3px);  }
-}
-```
-`@keyframes` defines an animation sequence. `jitter` is the name used to apply it. At 0% and 100% the element is in its normal position. At 25% it shifts 3px left; at 75% it shifts 3px right. The `translate(-50%, -50%)` must be repeated in each keyframe or the centring fix would be lost during the animation.
-
-### `@keyframes arrowFly`
-
-```css
-@keyframes arrowFly {
-  from { left: -220px; }
-  to   { left: 110vw;  }
-}
-```
-Moves the arrow from -220px (hidden off the left side) to 110vw (past the right side of the screen). `vw` means viewport-width units, so 110vw is 110% of the screen width.
-
----
-
-## game.js — Every Function
-
-The whole file is wrapped in:
-
-```js
-document.addEventListener("DOMContentLoaded", function () { ... });
-```
-
-`document` is the page itself. `addEventListener` says "when something happens, call this function." `"DOMContentLoaded"` is the event name — it fires when the browser has finished building all the HTML elements. Everything inside the callback function runs only after the page is ready.
-
----
-
-### Section: PAGE ELEMENTS
-
-```js
-const img = { ... };
-```
-
-`const` declares a variable that cannot be reassigned. `img` is an object (a collection of named values). Each property holds a reference to an HTML element grabbed by `document.getElementById("someId")`. Instead of writing `document.getElementById("robertImage")` everywhere, we just write `img.robert`.
-
-```js
-const ui = { ... };
-```
-
-Same pattern — groups all the UI elements (text, buttons, timer) into one object.
-
-```js
-const audio = { ... };
-```
-
-Groups the two audio elements.
-
----
-
-### Section: GAME STATE
-
-```js
-let currentRoom  = null;
-let qteIndex     = 0;
-let qteActive    = false;
-let timerTimeout = null;
-let timerTick    = null;
-```
-
-`let` declares a variable that *can* change later (unlike `const`). `null` means "empty for now." These five variables keep track of what's happening right now:
-- `currentRoom` — the room object currently on screen
-- `qteIndex` — the position in the required-keys array (which key is next)
-- `qteActive` — whether the QTE listener should pay attention to keypresses
-- `timerTimeout` — the handle for the timed game-over; stored so we can cancel it
-- `timerTick` — the handle for the timer bar visual update; stored so we can cancel it
-
----
-
-### Section: ROOMS
-
-Each room is a plain JavaScript object in curly braces `{ }`. A JavaScript object is like a dictionary — it holds named data. Example:
+Example:
 
 ```js
 {
-  id: 1,
-  text: "You stepped inside the stone cave...",
-  options: [
-    { text: "Investigate the dark tunnel.", goTo: 2 },
-    { text: "Hide underneath a big heavy desk.", goTo: 10 }
-  ]
+  id: 2,
+  text: "A light switch is blinking. Type LIGHT to flip it.",
+  typingPrompt: "LIGHT",
+  typingSuccessGoTo: 3
 }
 ```
 
-`id: 1` — the number used to navigate here. Call `goToRoom(1)` to load this room.  
-`text: "..."` — the string displayed in the dialogue box.  
-`options: [ ]` — an array of button objects. Each has `text` (button label) and `goTo` (which room to load when clicked).
+This means:
+- show this text
+- ask the player to type LIGHT
+- if correct, go to room 3
 
-Special properties used by some rooms:
+### 2. goToRoom(id)
+This function loads the next room.
 
-| Property | Type | What it does |
-|---|---|---|
-| `isBlackout` | boolean | adds class `blackout` to body (black background) |
-| `bloodFlash` | boolean | adds class `bloodFlash` (red background) |
-| `showSwitch` | boolean | makes the light switch visible |
-| `showKeypad` | boolean | makes the keypad visible |
-| `showRobert` | boolean | makes Teacher Robert visible |
-| `robertPosition` | string | `"left"`, `"center"`, `"right"`, or `"abyss"` |
-| `robertCloseup` | boolean | fills screen with Robert's face (game over horror) |
-| `shootArrow` | boolean | starts the arrow-fly animation |
-| `showSkull` | boolean | shows the pixel-art skull image |
-| `showDoor` | boolean | shows the pixel-art door image |
-| `hideHands` | boolean | hides the player's hands |
-| `playScream` | boolean | plays the scream sound effect |
-| `timeLimit` | number | milliseconds before automatic game over |
-| `timeoutGoTo` | number | room id to go to if time expires |
-| `requiredKeys` | array | key sequence the player must type (QTE) |
-| `qteSuccessGoTo` | number | room id to go to after a successful QTE |
+### 3. setBackground(room)
+This changes the screen look for each room, such as dark scenes or the run scene.
 
----
+### 4. setControls(room)
+This decides what the player sees:
+- buttons
+- typing box
+- QTE key boxes
 
-### Section: NAV BUTTONS
+## Easy tips for explaining your code
 
-```js
-const startBtn = document.getElementById("startButton");
-if (startBtn) startBtn.onclick = () => { window.location.href = "inGame.html"; };
+- The ROOMS list is your story map.
+- goToRoom is your travel button.
+- setBackground changes the scene mood.
+- setControls decides what the player can do right now.
+
+## Simple gameplay notes
+
+- Type LIGHT to flip the switch.
+- Press the key combo to break free.
+- Type 1975 to unlock the door.
+- The game over screen now only gives Main Menu.
+
+## How to run it
+
+Open index.html in a browser, or use:
+
+```bash
+python -m http.server 8000
 ```
+
+Then visit http://127.0.0.1:8000/.
 
 `document.getElementById` searches the page for the element with that id and returns it. We check `if (startBtn)` before using it because this script runs on *both* pages — `startButton` only exists on `index.html`, not `inGame.html`. Without the check, the script would throw an error on the game page.
 
