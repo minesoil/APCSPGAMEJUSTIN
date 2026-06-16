@@ -136,7 +136,7 @@ button:hover {
   width:      110px;
   left:       32%;
   top:        36%;
-  animation:  switchFlick 1.2s infinite;
+  animation:  switchFlick 0.2 infinite;
   z-index:    3;
 }
 
