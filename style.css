@@ -18,7 +18,7 @@ body {
 /* ── MAIN MENU ───────────────────────────────────────────────────────────── */
 
 #mainMenuBody {
-  background: url("Images/Home_Screen.png") center / cover no-repeat;
+  background: url("Images/Home Screen.png") center / cover no-repeat;
   display:    flex;
   justify-content: center;
   align-items:     center;
@@ -217,7 +217,7 @@ button:hover {
   bottom:     22px;
   left:       50%;
   transform:  translateX(-50%);
-  width:      88%;
+  width:      70%;
   background: rgba(0, 0, 0, 0.88);
   border:     2px solid #ff3333;
   padding:    18px 22px;
