@@ -50,19 +50,6 @@ body {
   position:   relative;
 }
 
-/* Darken the left edge to give the cave atmosphere */
-#gameBody::before {
-  content:    "";
-  position:   absolute;
-  left:       0;
-  top:        0;
-  width:      22%;
-  height:     100%;
-  background: radial-gradient(circle at left, black 20%, transparent 80%);
-  pointer-events: none;
-  z-index:    1;
-}
-
 /* Don't show the dark edge when it would clash with a solid background */
 #gameBody.blackout::before,
 #gameBody.bloodFlash::before,
