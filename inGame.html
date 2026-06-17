@@ -9,27 +9,31 @@
 
 <body>
 
-  <!-- Top corner emergency escape button -->
+  <!-- Top corner menu button -->
   <button id="menuButton">Back to Menu</button>
 
   <!-- The screen area where images appear -->
   <div id="gameWorld">
 
-    <!-- =======================================================================
-         AUDIO TRACK TRACKERS: PUT YOUR AUDIO FILE PATHS HERE!
-         ======================================================================= -->
 
-    <!-- 1. BACKGROUND MUSIC: Change "Music/BGM.mp3" to match your file -->
+    <!--AUDIO TRACKS-->
+
+    <!--background music-->
     <audio id="bgMusic" src="Music/BGM.mp3" loop></audio>
 
-    <!-- 2. JUMPSCARE SOUND: Change "Music/Loud Scream Sound Effect 4.mp3" to match your file -->
+    <!-- When you get caught by teacher robert-->
     <audio id="scareSound" src="Music/Loud Scream Sound Effect 4.mp3"></audio>
+    
+    <!--Clicking sound for buttons-->
+    <audio id ="clickSound" src ="Music/Mouse Click Sound Effect 4.mp3"></audio>
 
-    <!-- =======================================================================
-         VISUAL LAYERS AND IMAGES
-         ======================================================================= -->
+    <!--Arrow Flying Past-->
+    <audio id ="arrowSound" src ="Music/Arrow SFX.mp3"></audio>
 
-    <!-- BASE WALLPAPER BACKGROUND -->
+
+    <!--LAYERS AND IMAGES-->
+
+    <!--Background Image -->
     <img id="caveBackground" src="Images/Cave.png">
 
     <!-- Game Characters & Items (Hidden by default until game.js calls them) -->
