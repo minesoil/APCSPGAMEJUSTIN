@@ -1,4 +1,4 @@
-// 1. LINKING HTML ELEMENTS TO JAVASCRIPT VARIABLES
+//LINKING HTML ELEMENTS TO JAVASCRIPT VARIABLES
 var caveBackground = document.getElementById("caveBackground");
 var robert = document.getElementById("robertImage");
 var lightSwitch = document.getElementById("lightSwitchImage");
@@ -179,10 +179,10 @@ function generatePromptString() {
 function showRoom1() {
   currentRoom = 1;
   clearEverything();
-  dialogueText.innerText = "Oh my god... the heavy steel door just slammed shut behind me. I'm completely trapped in here. I can hear heavy thudding footsteps echoing deeper inside the cave... Teacher Robert is coming for me. What should I do?!";
+  dialogueText.innerText = "Oh my god... the heavy door just slammed shut behind me. I'm completely trapped in here. I can hear heavy thudding footsteps echoing deeper inside the cave. \n Teacher Robert is coming for me. What should I do?!";
 
   var btn1 = document.createElement("button");
-  btn1.innerText = "Creep forward quietly into the dark tunnel.";
+  btn1.innerText = "slowly walk into the dark tunnel.";
   btn1.onclick = function () {
     startBackgroundMusic();
     playClickSound();
@@ -210,7 +210,7 @@ function showRoomDeskPuzzle() {
   typingInput.placeholder = "Type the 4 colors here...";
 
   //the panic scenario text
-  dialogueText.innerText = "You dive under the heavy wood desk. Peeking out, you see an emergency panel with 4 colored wires cut: RED, BLUE, GREEN, YELLOW.\n\nTeacher Robert's heavy footsteps are right outside! You need to reconnect the grid power safely. Type all 4 colors in alphabetical order separated by spaces, then press Enter!";
+  dialogueText.innerText = "You dive under the desk. Peeking out, you see an emergency panel with 4 colored wires cut: RED, BLUE, GREEN, YELLOW.\n\nTeacher Robert is right outside! You need to reconnect the power safely. Type all 4 colors in alphabetical order with spaces, then press Enter";
 
   //Start a 15-second timer
   startRoomTimer(15);
@@ -226,10 +226,10 @@ function showRoomDeskPuzzle() {
         playClickSound();
         typingArea.className = "hidden"; // Hide the typing block frame
         typingInput.value = "";
-        showRoomDeskSuccess(); // Go to the safe survival room!
+        showRoomDeskSuccess(); // Go to the safe room
       } else {
         // Keeps the timer ticking down but gives feedback on a screw-up
-        dialogueText.innerText = "ERROR: WRONG COMBINATION!\nThe wires spark against the fingers! Quick, type the 4 colors in alphabetical order (separated by spaces)!";
+        dialogueText.innerText = "ERROR: WRONG COMBINATION!\nThe wires spark! Quick, type the 4 colors in alphabetical order (separated by spaces)!";
         typingInput.value = "";
       }
     }
@@ -238,9 +238,9 @@ function showRoomDeskPuzzle() {
 
 function showRoomDeskSuccess() {
   currentRoom = "deskSuccess";
-  clearEverything(); // Cuts the 15-second time bomb wire safely
+  clearEverything(); // Cuts the 15-second timeer and stuff
 
-  dialogueText.innerText = "CLICK! The backup battery hums to life under the desk. A low electrical buzzing sound distracts Teacher Robert, and you hear his heavy footsteps stomp away down the opposite corridor. You crawled back out from under the desk safely.";
+  dialogueText.innerText = "The battery turns on to life under the desk. A low electrical buzzing sound distracts Teacher Robert, and you hear his heavy footsteps stomp away down the opposite wall. You crawled back out from under the desk safely.";
 
   // Create the progression button to keep moving through the game
   var moveOnBtn = document.createElement("button");
@@ -270,7 +270,7 @@ function showRoom3() {
   rightHand.className = "hidden";
   typingArea.className = "visible";
   typingInput.placeholder = "Type LEFT or RIGHT to dodge!";
-  dialogueText.innerText = "NO! The bulb exploded! Total darkness! I hear something sprinting straight at me at full speed! Dodge immediately!\n\nQUICK TYPING TEST: Type 'LEFT' or 'RIGHT' and hit enter to jump out of the way!";
+  dialogueText.innerText = "NO! The bulb exploded! Total darkness! I hear something sprinting straight at me at full speed! Dodge immediately!\n\nType 'LEFT' or 'RIGHT' and hit enter to jump out of the way!";
   startRoomTimer(6);
 }
 
